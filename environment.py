@@ -1,188 +1,123 @@
+import gymnasium as gym
+from gymnasium import spaces
 import numpy as np
-import random
+import networkx as nx
 
-class MultiAgentFirefightingEnv:
-    def __init__(self, graph, num_agents, vehicle_types):
-        self.graph = graph
+from graph_utils import *
+
+class MultiAgentFirefighterEnv(gym.Env):
+    def __init__(self, num_agents=2, num_fires=10, num_water_sources=4):
+        super(MultiAgentFirefighterEnv, self).__init__()
+        
         self.num_agents = num_agents
-        self.vehicle_types = vehicle_types
-        self.agent_positions = {}
-        self.agent_destinations = {}
-        self.agent_times_remaining = {}
-        self.agent_water_levels = {}
-        self.agent_vehicle_types = {i: random.choice(list(vehicle_types.keys())) for i in range(num_agents)}
-
+        self.num_fires = num_fires
+        self.num_water_sources = num_water_sources
+        self.graph = generate_graph(num_fires, num_water_sources)
+        
+        # Estado de los agentes
+        self.agent_positions = [None] * num_agents
+        self.agent_water = [500] * num_agents
+        self.max_water = 500
+        
+        self.max_connections = max(len(list(self.graph.neighbors(node))) for node in self.graph.nodes())
+        self.action_space = spaces.MultiDiscrete([self.max_connections + 2] * num_agents)
+        
+        self.observation_space = spaces.Box(
+            low=0, high=1,
+            shape=(num_agents, num_fires + num_water_sources + 1 + self.max_connections * 3),
+            dtype=np.float32
+        )
+        
+        self.fires_extinguished = 0
+        self.max_steps = 200
+        self.current_step = 0
+        
     def reset(self):
-        # Resetear las posiciones y otros estados de los agentes
-        self.agent_positions = {agent: random.choice(list(self.graph.nodes)) for agent in range(self.num_agents)}
-        self.agent_destinations = {agent: None for agent in range(self.num_agents)}
-        self.agent_times_remaining = {agent: 0 for agent in range(self.num_agents)}
-        self.agent_water_levels = {agent: self.vehicle_types[self.agent_vehicle_types[agent]]['max_water_capacity'] 
-                                  for agent in range(self.num_agents)}
+        self.graph = generate_graph(self.num_fires, self.num_water_sources)
+        self.agent_positions = [np.random.choice(list(self.graph.nodes())) for _ in range(self.num_agents)]
+        self.agent_water = [self.max_water] * self.num_agents
+        self.fires_extinguished = 0
+        self.current_step = 0
         
-        # Inicializar los incendios con cantidades aleatorias de agua necesaria
-        for node in self.graph.nodes():
-            if self.graph.nodes[node]['tipo'] == 'incendio':
-                # Cantidad aleatoria entre 100 y 300 unidades de agua
-                self.graph.nodes[node]['water_to_extinguish'] = random.uniform(100, 300)
-        
-        return self.get_state()
+        return self._get_observations(), {}
     
-    def get_state(self):
-        state = []
-        for agent in range(self.num_agents):
-            position = self.agent_positions[agent]
-            destination = self.agent_destinations[agent]
-            vehicle_type = self.agent_vehicle_types[agent]
-
-            # Información básica del agente
-            position_index = list(self.graph.nodes).index(position)
-            destination_index = list(self.graph.nodes).index(destination) if destination else -1
-            water_level = self.agent_water_levels[agent]
-            max_water = self.vehicle_types[vehicle_type]['max_water_capacity']
+    def _get_observations(self):
+        obs = []
+        for i in range(self.num_agents):
+            agent_obs = []
+            
+            position_encoding = np.zeros(self.num_fires + self.num_water_sources)
+            node_index = int(self.agent_positions[i].split('_')[1])
+            if 'incendio' in self.agent_positions[i]:
+                position_encoding[node_index] = 1
+            else:
+                position_encoding[self.num_fires + node_index] = 1
+            agent_obs.extend(position_encoding)
+            
+            agent_obs.append(self.agent_water[i] / self.max_water)
+            
+            neighbors = list(self.graph.neighbors(self.agent_positions[i]))
+            neighbor_info = np.zeros(self.max_connections * 3)
+            
+            for j, neighbor in enumerate(neighbors):
+                if j >= self.max_connections:
+                    break
+                neighbor_info[j * 3] = 1 if 'incendio' in neighbor else 0
+                neighbor_info[j * 3 + 1] = self.graph.nodes[neighbor].get('water_to_extinguish', 0) / 100
+                neighbor_info[j * 3 + 2] = self.graph[self.agent_positions[i]][neighbor]['tiempo_viaje'] / 5
+            
+            agent_obs.extend(neighbor_info)
+            obs.append(agent_obs)
         
-            # Información del entorno cercano
-            nearest_fire = float('inf')
-            nearest_pond = float('inf')
-            for node in self.graph.nodes():
-                if self.graph.has_edge(position, node):
-                    node_type = self.graph.nodes[node]['tipo']
-                    if node_type == 'incendio' and self.graph.nodes[node]['water_to_extinguish'] > 0:
-                        nearest_fire = min(nearest_fire, self.graph[position][node]['tiempo_viaje'])
-                    elif node_type == 'estanque':
-                        nearest_pond = min(nearest_pond, self.graph[position][node]['tiempo_viaje'])
-            # Normalizar valores
-            state.extend([
-                position_index / len(self.graph.nodes),
-                destination_index / len(self.graph.nodes) if destination_index >= 0 else 0,
-                water_level / max_water,
-                1.0 if nearest_fire == float('inf') else nearest_fire / 10,
-                1.0 if nearest_pond == float('inf') else nearest_pond / 10
-            ])
-        return np.array(state, dtype=np.float32)
+        return np.array(obs, dtype=np.float32)
     
     def step(self, actions):
-        rewards = {}
+        self.current_step += 1
+        rewards = [0] * self.num_agents
+        dones = [False] * self.num_agents
+        infos = [{}] * self.num_agents
         
-        for agent, action in actions.items():
-            current_position = self.agent_positions[agent]
-            vehicle_type = self.agent_vehicle_types[agent]
-            rewards[agent] = 0
+        for i, action in enumerate(actions):
+            neighbors = list(self.graph.neighbors(self.agent_positions[i]))
             
-            # Si el agente está en movimiento, continuar el movimiento actual
-            if self.agent_destinations[agent] is not None:
-                self.agent_times_remaining[agent] -= 1
-                if self.agent_times_remaining[agent] <= 0:
-                    self.agent_positions[agent] = self.agent_destinations[agent]
-                    self.agent_destinations[agent] = None
-                continue
-    
-            # Procesar acciones según el tipo
-            if action == 0:  # MOVE
-                # Encontrar el mejor destino según el estado del agente
-                best_destination = None
-                min_distance = float('inf')
-                
-                for neighbor in self.graph.neighbors(current_position):
-                    path = self.graph[current_position][neighbor]
-                    
-                    # Verificar si el vehículo puede usar el camino
-                    if path['ancho'] >= self.vehicle_types[vehicle_type]['width']:
-                        node_type = self.graph.nodes[neighbor]['tipo']
-                        
-                        # Priorizar destinos según el estado del agente
-                        if self.agent_water_levels[agent] > 0:
-                            # Si tiene agua, buscar incendios cercanos
-                            if (node_type == 'incendio' and 
-                                self.graph.nodes[neighbor]['water_to_extinguish'] > 0 and
-                                path['tiempo_viaje'] < min_distance):
-                                best_destination = neighbor
-                                min_distance = path['tiempo_viaje']
-                        else:
-                            # Si no tiene agua, buscar estanques cercanos
-                            if node_type == 'estanque' and path['tiempo_viaje'] < min_distance:
-                                best_destination = neighbor
-                                min_distance = path['tiempo_viaje']
-                
-                if best_destination is not None:
-                    self.agent_destinations[agent] = best_destination
-                    self.agent_times_remaining[agent] = self.graph[current_position][best_destination]['tiempo_viaje']
-                    rewards[agent] = 0.1  # Pequeña recompensa por moverse estratégicamente
-    
-            elif action == 1:  # EXTINGUISH
-                node_type = self.graph.nodes[current_position]['tipo']
-                if node_type == 'incendio':
-                    water_needed = self.graph.nodes[current_position]['water_to_extinguish']
-                    if water_needed > 0 and self.agent_water_levels[agent] > 0:
-                        water_used = min(
-                            self.vehicle_types[vehicle_type]['water_dispense_rate'],
-                            self.agent_water_levels[agent],
-                            water_needed
-                        )
-                        self.agent_water_levels[agent] -= water_used
-                        self.graph.nodes[current_position]['water_to_extinguish'] -= water_used
-                        
-                        # Recompensa proporcional al agua utilizada
-                        rewards[agent] = 1.0 * (water_used / self.vehicle_types[vehicle_type]['water_dispense_rate'])
-                        
-                        # Bonus por extinguir completamente el incendio
-                        if self.graph.nodes[current_position]['water_to_extinguish'] <= 0:
-                            rewards[agent] += 2.0
-                    else:
-                        rewards[agent] = -0.1  # Penalización por intentar extinguir sin agua
+            if action < len(neighbors):
+                next_node = neighbors[action]
+                rewards[i] -= self.graph[self.agent_positions[i]][next_node]['tiempo_viaje']
+                self.agent_positions[i] = next_node
+            
+            elif action == len(neighbors):
+                if 'estanque' in self.agent_positions[i]:
+                    water_needed = self.max_water - self.agent_water[i]
+                    water_available = self.graph.nodes[self.agent_positions[i]]['water_capacity']
+                    water_to_add = min(water_needed, water_available)
+                    self.agent_water[i] += water_to_add
+                    self.graph.nodes[self.agent_positions[i]]['water_capacity'] -= water_to_add
+                    rewards[i] += water_to_add * 0.1
                 else:
-                    rewards[agent] = -0.1  # Penalización por intentar extinguir en lugar incorrecto
-    
-            elif action == 2:  # REFILL
-                node_type = self.graph.nodes[current_position]['tipo']
-                if node_type == 'estanque':
-                    if self.agent_water_levels[agent] < self.vehicle_types[vehicle_type]['max_water_capacity']:
-                        water_added = self.vehicle_types[vehicle_type]['max_water_capacity'] - self.agent_water_levels[agent]
-                        self.agent_water_levels[agent] = self.vehicle_types[vehicle_type]['max_water_capacity']
-                        rewards[agent] = 0.5 * (water_added / self.vehicle_types[vehicle_type]['max_water_capacity'])
+                    rewards[i] -= 5
+            
+            elif action == len(neighbors) + 1:
+                if 'incendio' in self.agent_positions[i]:
+                    fire_size = self.graph.nodes[self.agent_positions[i]]['water_to_extinguish']
+                    if self.agent_water[i] >= fire_size and fire_size > 0:
+                        self.agent_water[i] -= fire_size
+                        self.graph.nodes[self.agent_positions[i]]['water_to_extinguish'] = 0
+                        self.fires_extinguished += 1
+                        rewards[i] += 100
                     else:
-                        rewards[agent] = -0.1  # Penalización por intentar recargar estando lleno
+                        rewards[i] -= 10
                 else:
-                    rewards[agent] = -0.1  # Penalización por intentar recargar en lugar incorrecto
+                    rewards[i] -= 5
+            
+            if self.fires_extinguished == self.num_fires:
+                rewards[i] += 500
+                dones[i] = True
+            elif self.current_step >= self.max_steps:
+                dones[i] = True
+            
+        return self._get_observations(), rewards, dones, infos
     
-        done = self.is_done()
-        return self.get_state(), rewards, done
-
-    def calculate_reward(self, position, agent):
-        node_type = self.graph.nodes[position]['tipo']
-        vehicle_type = self.agent_vehicle_types[agent]
-        reward = 0
-
-        if node_type == 'incendio':
-            water_needed = self.graph.nodes[position]['water_to_extinguish']
-            if water_needed > 0 and self.agent_water_levels[agent] > 0:
-                water_used = min(
-                    self.vehicle_types[vehicle_type]['water_dispense_rate'],
-                    self.agent_water_levels[agent],
-                    water_needed
-                )
-                # Recompensa proporcional al agua utilizada
-                reward = 1.0 * (water_used / self.vehicle_types[vehicle_type]['water_dispense_rate'])
-                
-                self.agent_water_levels[agent] -= water_used
-                self.graph.nodes[position]['water_to_extinguish'] -= water_used
-
-                # Bonus por extinguir completamente el incendio
-                if self.graph.nodes[position]['water_to_extinguish'] <= 0:
-                    reward += 2.0
-
-        elif node_type == 'estanque':
-            if self.agent_water_levels[agent] < self.vehicle_types[vehicle_type]['max_water_capacity']:
-                water_added = self.vehicle_types[vehicle_type]['max_water_capacity'] - self.agent_water_levels[agent]
-                reward = 0.5 * (water_added / self.vehicle_types[vehicle_type]['max_water_capacity'])
-                self.agent_water_levels[agent] = self.vehicle_types[vehicle_type]['max_water_capacity']
-
-        return reward
-
-    def is_done(self):
-    # Buscar si queda algún nodo con tipo 'incendio' y water_to_extinguish > 0
-        for node in self.graph.nodes:
-            if (self.graph.nodes[node]['tipo'] == 'incendio' and
-                self.graph.nodes[node]['water_to_extinguish'] > 0):
-                return False
-        return True
+    def render(self, mode='human'):
+        if mode == 'human':
+            visualize_graph(self.graph)
+            plt.show()

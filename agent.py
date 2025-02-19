@@ -1,159 +1,96 @@
 import numpy as np
-import random
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-from collections import deque, namedtuple
+import random
 
+from replay_memory import *
 from dqn import DQN
 
-Experience = namedtuple('Experience', ['state', 'action', 'reward', 'next_state', 'done'])
-
-class DuelingDQN(nn.Module):
-    def __init__(self, state_dim, action_dim):
-        super(DuelingDQN, self).__init__()
-        self.feature_layer = nn.Sequential(
-            nn.Linear(state_dim, 128),
-            nn.ReLU(),
-            nn.Linear(128, 128),
-            nn.ReLU()
-        )
-        
-        # Ventaja y valor streams
-        self.advantage_stream = nn.Sequential(
-            nn.Linear(128, 128),
-            nn.ReLU(),
-            nn.Linear(128, action_dim)
-        )
-        
-        self.value_stream = nn.Sequential(
-            nn.Linear(128, 128),
-            nn.ReLU(),
-            nn.Linear(128, 1)
-        )
-        
-    def forward(self, state):
-        features = self.feature_layer(state)
-        
-        advantage = self.advantage_stream(features)
-        value = self.value_stream(features)
-        
-        # Combinar valor y ventaja
-        return value + (advantage - advantage.mean(dim=1, keepdim=True))
-
 class DQNAgent:
-    def __init__(self, state_dim, action_dim, vehicle_types, vehicle_type):
+    def __init__(self, state_dim, action_dim, vehicle_type):
+        # Device configuration
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        
+        # Environment parameters
         self.state_dim = state_dim
         self.action_dim = action_dim
-        self.vehicle_types = vehicle_types
         self.vehicle_type = vehicle_type
-
-        # Hiperparámetros mejorados
-        self.epsilon = 1.0
-        self.epsilon_min = 0.1
-        self.epsilon_decay = 0.9995
-        self.learning_rate = 0.0001
-        self.gamma = 0.95
-        self.batch_size = 128
-        self.target_update_freq = 10
-
-        # Double DQN con arquitectura Dueling
-        self.model = DQN(state_dim, action_dim).to(self.device)
-        self.target_model = DQN(state_dim, action_dim).to(self.device)
+        
+        # Hyperparameters
+        self.batch_size = 128 # is the number of samples to train on in a single batch
+        self.gamma = 0.99  # is the discount factor for future rewards
+        self.epsilon = 0.95
+        self.epsilon_min = 0.05
+        self.epsilon_decay = 1000  # Controls the rate of exponential decay for epsilon, higher is slower
+        self.target_update_freq = 0.005  # is the update rate of the target network
+        self.learning_rate = 1e-4  # is the learning rate of the optimizer (AdamW)
+        
+        # Initialize networks
+        self.policy_net = DQN(state_dim, action_dim).to(self.device)
+        self.target_net = DQN(state_dim, action_dim).to(self.device)
         self.update_target_model()
-
-        # Optimizador con gradiente clipping
-        self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
+        self.target_net.eval()
         
-        # Memoria de experiencia con priorización
-        self.memory = deque(maxlen=100000)
+        # Initialize replay memory with capacity
+        self.memory = ReplayMemory(capacity=10000)
         
-        # Contador de pasos para actualización de red objetivo
-        self.training_steps = 0
+        # Initialize optimizer
+        self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.learning_rate, amsgrad=True)
+        
+        self.steps_done = 0
 
     def update_target_model(self):
-        self.target_model.load_state_dict(self.model.state_dict())
+        self.target_net.load_state_dict(self.policy_net.state_dict())
         
-    def normalize_state(self, state):
-        # Normalizar el estado para mejor estabilidad
-        return (state - np.mean(state)) / (np.std(state) + 1e-8)
-
-    def act(self, state):
-        state = self.normalize_state(state)
+    def select_action(self, state):
+        sample = random.random()
+        eps_threshold = self.epsilon_min + (self.epsilon - self.epsilon_min) * np.exp(-1.0 * self.steps_done / self.epsilon_decay)
+        self.steps_done += 1
+        if sample > eps_threshold:
+            with torch.no_grad():
+                state = state.to(self.device)
+                # t.max(1) will return the largest column value of each row.
+                # second column on max result is index of where max element was
+                # found, so we pick action with the larger expected reward.
+                return self.policy_net(state).max(1).indices.view(1, 1).to(self.device)
+        else:
+            return torch.tensor([[random.randrange(self.action_dim)]], device=self.device, dtype=torch.long)
         
-        if np.random.rand() <= self.epsilon:
-            return random.randrange(3)  # Solo 3 acciones posibles: 0, 1, 2
-    
-        with torch.no_grad():
-            state = torch.FloatTensor(state).unsqueeze(0).to(self.device)
-            q_values = self.model(state)
-            
-            # Añadir ruido pequeño para romper empates
-            noise = torch.randn_like(q_values) * 0.01
-            return torch.argmax(q_values + noise).item()
-
-    def remember(self, state, action, reward, next_state, done):
-        # Normalizar estados
-        state = self.normalize_state(state)
-        next_state = self.normalize_state(next_state)
-        
-        # Clip reward para estabilidad
-        reward = np.clip(reward, -1, 1)
-        
-        self.memory.append((state, action, reward, next_state, done))
-
-    def replay(self):
-        if len(self.memory) < self.batch_size:
+    def learn(self, batchsize):
+        if len(self.memory) < batchsize:
             return
-
-        # Muestreo con prioridad simple
-        indices = random.sample(range(len(self.memory)), self.batch_size)
-        batch = [self.memory[i] for i in indices]
-
-        states = torch.FloatTensor(np.array([x[0] for x in batch])).to(self.device)
-        actions = torch.LongTensor(np.array([x[1] for x in batch])).unsqueeze(1).to(self.device)
-        rewards = torch.FloatTensor(np.array([x[2] for x in batch])).to(self.device)
-        next_states = torch.FloatTensor(np.array([x[3] for x in batch])).to(self.device)
-        dones = torch.BoolTensor(np.array([x[4] for x in batch])).to(self.device)
-
-        # Double DQN
-        with torch.no_grad():
-            next_actions = self.model(next_states).max(1)[1].unsqueeze(1)
-            next_q_values = self.target_model(next_states).gather(1, next_actions)
-            target_q_values = rewards.unsqueeze(1) + self.gamma * next_q_values * (~dones).unsqueeze(1)
-
-        current_q_values = self.model(states).gather(1, actions)
-
-        # Huber loss para mejor estabilidad
-        loss = nn.SmoothL1Loss()(current_q_values, target_q_values)
-
+        
+        # Sample batch from replay memory
+        transitions = self.memory.sample(batchsize)
+        batch = Transition(*zip(*transitions))
+        states, actions, next_states, rewards = batch.state, batch.action, batch.next_state, batch.reward
+        
+        # Convertir a tensores
+        # Convertir a tensores asegurando que están en el dispositivo correcto
+        states = torch.tensor(np.array(batch.state), dtype=torch.float, device=self.device)
+        actions = torch.tensor(batch.action, dtype=torch.long, device=self.device).reshape((-1, 1))
+        next_states = torch.tensor(np.array(batch.next_state), dtype=torch.float, device=self.device)
+        rewards = torch.tensor(batch.reward, dtype=torch.float, device=self.device).reshape((-1, 1))
+        dones = torch.tensor(batch.done, dtype=torch.float, device=self.device).reshape((-1, 1))
+        
+        # Compute Q(s_t, a) - the model computes Q(s_t), then we select the columns of actions taken
+        predicted_qs = self.policy_net(states).gather(1, actions).to(self.device)
+        
+        target_qs = self.target_net(next_states).max(1).values.reshape(-1, 1).to(self.device)
+        
+        y_js = rewards + self.gamma * target_qs
+        
+        loss = F.mse_loss(predicted_qs, y_js)
         self.optimizer.zero_grad()
         loss.backward()
-        
-        # Gradient clipping
-        torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
-        
+        nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
         self.optimizer.step()
 
-        # Actualizar epsilon con decay más lento al inicio
-        if self.training_steps < 1000:
-            decay = 0.9999
-        else:
-            decay = self.epsilon_decay
-        self.epsilon = max(self.epsilon_min, self.epsilon * decay)
-
-        # Actualizar modelo objetivo periódicamente
-        self.training_steps += 1
-        if self.training_steps % self.target_update_freq == 0:
-            self.update_target_model()
-
-        return loss.item()
-
     def load(self, name):
-        self.model.load_state_dict(torch.load(name))
-        self.target_model.load_state_dict(self.model.state_dict())
+        self.policy_net.load_state_dict(torch.load(name))
+        self.policy_net.eval()
 
     def save(self, name):
-        torch.save(self.model.state_dict(), name)
+        torch.save(self.policy_net.state_dict(), name)
