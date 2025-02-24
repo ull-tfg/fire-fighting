@@ -4,9 +4,16 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import random
+from enum import Enum
 
 from replay_memory import *
 from dqn import DQN
+
+class Action(Enum):
+    MOVE = 0
+    REFILL = 1
+    EXTINGUISH = 2
+    
 
 class DQNAgent:
     def __init__(self, state_dim, action_dim, vehicle_type):
@@ -23,7 +30,7 @@ class DQNAgent:
         self.gamma = 0.99  # is the discount factor for future rewards
         self.epsilon = 0.95
         self.epsilon_min = 0.05
-        self.epsilon_decay = 1000  # Controls the rate of exponential decay for epsilon, higher is slower
+        self.epsilon_decay = 100000  # Controls the rate of exponential decay for epsilon, higher is slower
         self.target_update_freq = 0.005  # is the update rate of the target network
         self.learning_rate = 1e-4  # is the learning rate of the optimizer (AdamW)
         
