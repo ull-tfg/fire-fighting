@@ -4,12 +4,8 @@ import numpy as np
 import networkx as nx
 from enum import Enum
 import random
+import scipy as sp
 from collections import defaultdict
-
-class Action(Enum):
-    MOVE = 0
-    REFILL = 1
-    EXTINGUISH = 2
 
 class FirefightingEnv(gym.Env):
     metadata = {'render_modes': ['human', 'rgb_array'], 'render_fps': 4}
@@ -29,6 +25,10 @@ class FirefightingEnv(gym.Env):
             render_mode: 'human' or 'rgb_array' for visualization.
         """
         super().__init__()
+        
+        # Penalize for repeated actions
+        self.last_action = None
+        self.repeated_action_count = 0
         
         # Environment parameters
         self.num_agents = num_agents
@@ -62,8 +62,8 @@ class FirefightingEnv(gym.Env):
         self.agent_water_levels = {}
         self.fires_remaining = {}  # Maps fire nodes to remaining water needed
         
-        # Define action space: MOVE, REFILL, EXTINGUISH
-        self.action_space = spaces.Discrete(3)
+        # Define action space
+        self.action_space = spaces.Discrete(len(self.all_nodes) + 2)  # Nodos + EXTINGUISH + REFILL
         
         # Define observation space
         # State includes:
@@ -77,7 +77,8 @@ class FirefightingEnv(gym.Env):
             1 +                   # Current water level
             len(self.fire_nodes) +  # Fire statuses
             len(self.water_nodes) +  # Water source capacities
-            len(self.all_nodes)     # Distances
+            len(self.all_nodes) +     # Distances
+            len(self.all_nodes) ** 2  # Adjacency matrix
         )
         
         low = np.zeros(self.state_dim, dtype=np.float32)
@@ -130,98 +131,65 @@ class FirefightingEnv(gym.Env):
         return observation, info
     
     def step(self, action):
-        """
-        Take a step in the environment with the given action.
-        
-        Args:
-            action: Integer representing the action to take (MOVE, REFILL, EXTINGUISH)
-            
-        Returns:
-            observation: Current observation
-            reward: Reward for the action
-            terminated: Whether the episode is terminated
-            truncated: Whether the episode is truncated due to time limit
-            info: Additional information
-        """
-        # For simplicity, we'll focus on a single agent (agent_id=0)
-        agent_id = 0
+        agent_id = 0  # Asumimos un solo agente por ahora
         reward = 0
-        action_enum = Action(action)
-        
-        # Get current position and node type
+    
+        # Obtener posición actual y tipo de nodo
         current_pos = self.agent_positions[agent_id]
         current_node_type = self.graph.nodes[current_pos]['tipo']
-        
-        # Process action
-        if action_enum == Action.MOVE:
-            # Get neighboring nodes that the agent can access based on vehicle width
-            valid_neighbors = []
-            for neighbor in self.graph.neighbors(current_pos):
-                edge_width = self.graph[current_pos][neighbor]['ancho']
-                if edge_width >= self.vehicle_types[agent_id]['width']:
-                    valid_neighbors.append(neighbor)
-            
-            if valid_neighbors:
-                # Move to a random valid neighbor
-                new_pos = random.choice(valid_neighbors)
-                travel_time = self.graph[current_pos][new_pos]['tiempo_viaje']
-                
-                # Apply cost for traveling
-                reward -= travel_time * 0.1  # Small penalty for travel time
-                self.agent_positions[agent_id] = new_pos
-            else:
-                # Can't move, apply small penalty
-                reward -= 1.0
-        
-        elif action_enum == Action.REFILL:
-            if current_node_type == 'estanque':
-                # Refill to capacity
-                capacity = self.vehicle_types[agent_id]['capacity']
-                refill_amount = capacity - self.agent_water_levels[agent_id]
-                self.agent_water_levels[agent_id] = capacity
-                reward += 0.5  # Small reward for successful refill
-            else:
-                # Not at a water source, apply penalty
-                reward -= 1.0
-        
-        elif action_enum == Action.EXTINGUISH:
+    
+        # Procesar acción
+        if action == self.last_action:
+            self.repeated_action_count += 1
+        else:
+            self.repeated_action_count = 0
+        self.last_action = action
+    
+        # Mover al nodo objetivo
+        if action < len(self.all_nodes):  # Acción de movimiento
+            target_node = self.all_nodes[action]
+    
+            if target_node in self.graph.neighbors(current_pos):
+                travel_time = self.graph[current_pos][target_node]['tiempo_viaje']
+                reward += 1.0  # Pequeña recompensa por moverse correctamente
+                self.agent_positions[agent_id] = target_node
+            elif target_node not in self.graph.neighbors(current_pos):
+                neighbors = list(self.graph.neighbors(current_pos))
+                distances = [self.graph[current_pos][n]['tiempo_viaje'] for n in neighbors]
+                target_node = neighbors[np.argmin(distances)]
+                self.agent_positions[agent_id] = target_node
+    
+        elif action == len(self.all_nodes):  # Acción de extinguir fuego
             if current_node_type == 'incendio' and self.fires_remaining[current_pos] > 0:
-                # Determine how much water to use
                 water_needed = self.fires_remaining[current_pos]
                 water_available = self.agent_water_levels[agent_id]
                 water_used = min(water_needed, water_available)
-                
-                # Update fire and agent water
                 self.fires_remaining[current_pos] -= water_used
                 self.agent_water_levels[agent_id] -= water_used
-                
-                # Reward based on water used and if fire is extinguished
-                reward += water_used * 0.2  # Reward proportional to water used
-                
+    
+                reward += water_used * 0.5
                 if self.fires_remaining[current_pos] <= 0:
-                    reward += 10.0  # Bonus for extinguishing a fire
+                    reward += 80.0
                     self.fires_extinguished += 1
-            else:
-                # Not at a fire or fire already extinguished
-                reward -= 1.0
-        
+    
+        elif action == len(self.all_nodes) + 1:  # Acción de recargar agua
+            if current_node_type == 'estanque':
+                capacity = self.vehicle_types[agent_id]['capacity']
+                refill_amount = capacity - self.agent_water_levels[agent_id]
+                self.agent_water_levels[agent_id] = capacity
+    
+                if refill_amount > 0:
+                    reward += 0.5 * refill_amount
+    
         self.current_step += 1
         self.total_reward += reward
-        
-        # Check termination conditions
+    
         terminated = all(water <= 0 for water in self.fires_remaining.values())
         truncated = self.current_step >= self.max_steps
-        
-        # Get observation
-        observation = self._get_observation(agent_id)
-        info = self._get_info()
-        
-        return observation, reward, terminated, truncated, info
+    
+        return self._get_observation(agent_id), reward, terminated, truncated, self._get_info()
     
     def _get_observation(self, agent_id):
-        """
-        Construct the observation for the given agent.
-        """
         observation = np.zeros(self.state_dim, dtype=np.float32)
         
         # One-hot encoding of position
@@ -285,6 +253,7 @@ class FirefightingEnv(gym.Env):
             water = self.agent_water_levels[agent_id]
             fires_left = sum(1 for v in self.fires_remaining.values() if v > 0)
             
+            print(f"Acciones disponibles: {self.action_space}")
             print(f"Step: {self.current_step}/{self.max_steps}")
             print(f"Agent at: {pos}, Water: {water}")
             print(f"Fires left: {fires_left}/{len(self.fire_nodes)}")

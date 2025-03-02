@@ -8,7 +8,7 @@ from collections import deque
 import networkx as nx
 
 # Import custom modules
-from environment import FirefightingEnv, Action
+from environment import FirefightingEnv
 from dqn import DQN
 from agent import DQNAgent
 from graph_utils import generate_graph, visualize_graph, format_time, print_results
@@ -140,6 +140,7 @@ def evaluate_agent(env, agent, num_episodes=5, render=False):
             
             if render:
                 env.render()
+                print(f"Acción seleccionada: {action}")
         
         eval_rewards.append(episode_reward)
         eval_fires_extinguished.append(info['fires_extinguished'])
@@ -211,7 +212,7 @@ if __name__ == "__main__":
     agent = DQNAgent(state_dim, action_dim, vehicle_type)
     
     # Train the agent
-    metrics = train_agent(env, agent, num_episodes=500, max_steps=200, 
+    metrics = train_agent(env, agent, num_episodes=1000, max_steps=200, 
                         eval_freq=10, render_training=False)
     
     # Visualize results

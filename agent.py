@@ -29,9 +29,9 @@ class DQNAgent:
         self.batch_size = 128 # is the number of samples to train on in a single batch
         self.gamma = 0.99  # is the discount factor for future rewards
         self.epsilon = 0.95
-        self.epsilon_min = 0.05
-        self.epsilon_decay = 100000  # Controls the rate of exponential decay for epsilon, higher is slower
-        self.target_update_freq = 0.005  # is the update rate of the target network
+        self.epsilon_min = 0.1
+        self.epsilon_decay = 10000  # Controls the rate of exponential decay for epsilon, higher is slower
+        self.target_update_freq = 0.0005  # is the update rate of the target network
         self.learning_rate = 1e-4  # is the learning rate of the optimizer (AdamW)
         
         # Initialize networks
