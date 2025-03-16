@@ -11,7 +11,7 @@ class FirefightingEnv(gym.Env):
     metadata = {'render_modes': ['human', 'rgb_array'], 'render_fps': 4}
     
     def __init__(self, graph=None, num_fires=10, num_water_sources=4, num_agents=1, 
-                 max_steps=200, vehicle_types=None, render_mode=None):
+                 max_steps=200, vehicle_types=None):
         """
         Initialize the Firefighting Environment.
         
@@ -22,19 +22,13 @@ class FirefightingEnv(gym.Env):
             num_agents: Number of firefighting agents.
             max_steps: Maximum number of steps per episode.
             vehicle_types: Dict mapping agent_id to vehicle type properties {'capacity': int, 'width': int}.
-            render_mode: 'human' or 'rgb_array' for visualization.
         """
         super().__init__()
-        
-        # Penalize for repeated actions
-        self.last_action = None
-        self.repeated_action_count = 0
         
         # Environment parameters
         self.num_agents = num_agents
         self.max_steps = max_steps
         self.current_step = 0
-        self.render_mode = render_mode
         
         # Set up the graph
         if graph is None:
@@ -67,18 +61,18 @@ class FirefightingEnv(gym.Env):
         
         # Define observation space
         # State includes:
-        # - One-hot encoding of agent position (len(all_nodes))
+        # - Distance matrix from the agent's current position to all nodes (len(all_nodes))
+        # - Active fire nodes (1 if fire is present, 0 otherwise) (len(all_nodes))
+        # - Water source nodes (1 if it's a reservoir, 0 otherwise) (len(all_nodes))
+        # - One-hot encoding of the agent's position (len(all_nodes))
         # - Agent's current water level (1)
-        # - Status of each fire (water left to extinguish) (len(fire_nodes))
-        # - Water capacity of each water source (len(water_nodes))
-        # - Distances to all nodes (len(all_nodes))
+        
         self.state_dim = (
-            len(self.all_nodes) +  # One-hot position
-            1 +                   # Current water level
-            len(self.fire_nodes) +  # Fire statuses
-            len(self.water_nodes) +  # Water source capacities
-            len(self.all_nodes) +     # Distances
-            len(self.all_nodes) ** 2  # Adjacency matrix
+            len(self.all_nodes) +  # Distance matrix based on 'tiempo_viaje'
+            len(self.all_nodes) +  # Active fire nodes
+            len(self.all_nodes) +  # Water source nodes
+            len(self.all_nodes) +  # One-hot encoding of agent's position
+            1                      # Current water level
         )
         
         low = np.zeros(self.state_dim, dtype=np.float32)
@@ -131,35 +125,31 @@ class FirefightingEnv(gym.Env):
         return observation, info
     
     def step(self, action):
-        agent_id = 0  # Asumimos un solo agente por ahora
+        agent_id = 0  # Por ahora, solo un agente
         reward = 0
     
         # Obtener posición actual y tipo de nodo
         current_pos = self.agent_positions[agent_id]
         current_node_type = self.graph.nodes[current_pos]['tipo']
     
-        # Procesar acción
-        if action == self.last_action:
-            self.repeated_action_count += 1
-        else:
-            self.repeated_action_count = 0
-        self.last_action = action
-    
-        # Mover al nodo objetivo
-        if action < len(self.all_nodes):  # Acción de movimiento
+        # Acción de movimiento
+        if action < len(self.all_nodes):
             target_node = self.all_nodes[action]
-    
+            
             if target_node in self.graph.neighbors(current_pos):
-                travel_time = self.graph[current_pos][target_node]['tiempo_viaje']
-                reward += 1.0  # Pequeña recompensa por moverse correctamente
+                # Si el nodo está directamente conectado, moverse
                 self.agent_positions[agent_id] = target_node
-            elif target_node not in self.graph.neighbors(current_pos):
-                neighbors = list(self.graph.neighbors(current_pos))
-                distances = [self.graph[current_pos][n]['tiempo_viaje'] for n in neighbors]
-                target_node = neighbors[np.argmin(distances)]
-                self.agent_positions[agent_id] = target_node
+            else:
+                # Encontrar el camino más corto y moverse al siguiente nodo en la ruta
+                shortest_path = nx.shortest_path(self.graph, source=current_pos, target=target_node, weight='tiempo_viaje')
+                if len(shortest_path) > 1:
+                    next_step = shortest_path[1]  # El siguiente nodo en la ruta
+                    self.agent_positions[agent_id] = next_step
+                else:
+                    reward -= 100.0  # Penalizar movimientos innecesarios
     
-        elif action == len(self.all_nodes):  # Acción de extinguir fuego
+        # Acción de extinguir fuego
+        elif action == len(self.all_nodes):
             if current_node_type == 'incendio' and self.fires_remaining[current_pos] > 0:
                 water_needed = self.fires_remaining[current_pos]
                 water_available = self.agent_water_levels[agent_id]
@@ -167,68 +157,67 @@ class FirefightingEnv(gym.Env):
                 self.fires_remaining[current_pos] -= water_used
                 self.agent_water_levels[agent_id] -= water_used
     
-                reward += water_used * 0.5
+                reward += water_used * 0.5  # Recompensa por cada unidad de agua utilizada
                 if self.fires_remaining[current_pos] <= 0:
-                    reward += 80.0
+                    reward += 300.0  # Recompensa extra por extinguir un fuego
                     self.fires_extinguished += 1
     
-        elif action == len(self.all_nodes) + 1:  # Acción de recargar agua
+        # Acción de recargar agua
+        elif action == len(self.all_nodes) + 1:
             if current_node_type == 'estanque':
                 capacity = self.vehicle_types[agent_id]['capacity']
-                refill_amount = capacity - self.agent_water_levels[agent_id]
                 self.agent_water_levels[agent_id] = capacity
     
-                if refill_amount > 0:
-                    reward += 0.5 * refill_amount
-    
+        # Avanzar paso y verificar si se completa el episodio
         self.current_step += 1
         self.total_reward += reward
     
-        terminated = all(water <= 0 for water in self.fires_remaining.values())
-        truncated = self.current_step >= self.max_steps
+        # Terminar si todos los incendios están apagados
+        terminated = all(fire <= 0 for fire in self.fires_remaining.values())
+        truncated = self.current_step >= self.max_steps  # Finaliza por límite de pasos
     
         return self._get_observation(agent_id), reward, terminated, truncated, self._get_info()
     
     def _get_observation(self, agent_id):
-        observation = np.zeros(self.state_dim, dtype=np.float32)
+        """Genera la observación con matriz de distancias basada en tiempo_viaje, incendios activos, embalses, posición y nivel de agua."""
         
-        # One-hot encoding of position
-        pos_idx = self.node_to_idx[self.agent_positions[agent_id]]
-        observation[pos_idx] = 1.0
-        
-        # Current water level (normalized by capacity)
-        capacity = self.vehicle_types[agent_id]['capacity']
-        current_water = self.agent_water_levels[agent_id]
-        observation[len(self.all_nodes)] = current_water / capacity
-        
-        # Fire statuses (normalized by initial water needed)
-        fire_offset = len(self.all_nodes) + 1
-        for i, fire_node in enumerate(self.fire_nodes):
-            initial_water = self.graph.nodes[fire_node]['water_to_extinguish']
-            remaining_water = self.fires_remaining[fire_node]
-            observation[fire_offset + i] = remaining_water / initial_water
-        
-        # Water source capacities
-        water_offset = fire_offset + len(self.fire_nodes)
-        for i, water_node in enumerate(self.water_nodes):
-            capacity = self.graph.nodes[water_node]['water_capacity']
-            observation[water_offset + i] = capacity / 2000.0  # Normalize by max capacity
-        
-        # Distances to all nodes (normalized by maximum distance)
-        dist_offset = water_offset + len(self.water_nodes)
+        # Matriz de distancias basada en 'tiempo_viaje' (normalizada)
         current_pos = self.agent_positions[agent_id]
-        
-        # Calculate shortest paths from current position to all nodes
-        distances = nx.single_source_shortest_path_length(self.graph, current_pos)
-        max_dist = max(distances.values()) if distances else 1
-        
-        for node, idx in self.node_to_idx.items():
-            if node in distances:
-                normalized_dist = distances[node] / max_dist
-                observation[dist_offset + idx] = normalized_dist
-            else:
-                observation[dist_offset + idx] = 1.0  # Unreachable nodes get max distance
-        
+        distances = nx.single_source_dijkstra_path_length(self.graph, current_pos, weight='tiempo_viaje')
+        max_dist = max(1, max(distances.values(), default=1))  # Evitar división por 0
+    
+        distance_matrix = np.array([
+            distances.get(node, max_dist) / max_dist  # Normaliza por la mayor distancia posible
+            for node in self.all_nodes
+        ], dtype=np.float32)
+    
+        # Nodos con incendios activos (1 si hay fuego, 0 si está apagado)
+        fire_status = np.array([
+            1 if node in self.fires_remaining and self.fires_remaining[node] > 0 else 0 
+            for node in self.all_nodes
+        ], dtype=np.float32)
+    
+        # Nodos que son embalses (1 si es estanque, 0 si no)
+        water_nodes = np.array([1 if node in self.water_nodes else 0 for node in self.all_nodes], dtype=np.float32)
+    
+        # Posición del agente (one-hot encoding)
+        agent_pos_encoding = np.zeros(len(self.all_nodes), dtype=np.float32)
+        pos_idx = self.node_to_idx[self.agent_positions[agent_id]]
+        agent_pos_encoding[pos_idx] = 1.0
+    
+        # Nivel de agua del agente (normalizado)
+        max_capacity = self.vehicle_types[agent_id]['capacity']
+        water_level = np.array([self.agent_water_levels[agent_id] / max_capacity], dtype=np.float32)
+    
+        # Concatenar todo en un solo vector de observación
+        observation = np.concatenate([
+            distance_matrix,       # Matriz de distancias basada en tiempo_viaje
+            fire_status,           # Incendios activos
+            water_nodes,           # Estanques
+            agent_pos_encoding,    # Posición del agente
+            water_level            # Nivel de agua del agente
+        ])
+    
         return observation
     
     def _get_info(self):
@@ -242,23 +231,19 @@ class FirefightingEnv(gym.Env):
     
     def render(self):
         """Render the environment."""
-        if self.render_mode is None:
-            return
-        
         # Implementation would depend on desired visualization
         # For now, we'll just print some basic information
-        if self.render_mode == "human":
-            agent_id = 0
-            pos = self.agent_positions[agent_id]
-            water = self.agent_water_levels[agent_id]
-            fires_left = sum(1 for v in self.fires_remaining.values() if v > 0)
-            
-            print(f"Acciones disponibles: {self.action_space}")
-            print(f"Step: {self.current_step}/{self.max_steps}")
-            print(f"Agent at: {pos}, Water: {water}")
-            print(f"Fires left: {fires_left}/{len(self.fire_nodes)}")
-            print(f"Total reward: {self.total_reward:.2f}")
-            print("---")
+        agent_id = 0
+        pos = self.agent_positions[agent_id]
+        water = self.agent_water_levels[agent_id]
+        fires_left = sum(1 for v in self.fires_remaining.values() if v > 0)
+        
+        print(f"Acciones disponibles: {self.action_space}")
+        print(f"Step: {self.current_step}/{self.max_steps}")
+        print(f"Agent at: {pos}, Water: {water}")
+        print(f"Fires left: {fires_left}/{len(self.fire_nodes)}")
+        print(f"Total reward: {self.total_reward:.2f}")
+        print("---")
     
     def close(self):
         """Close the environment."""

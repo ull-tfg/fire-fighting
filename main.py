@@ -40,6 +40,7 @@ def train_agent(env, agent, num_episodes=500, max_steps=200, eval_freq=10, rende
     for episode in range(num_episodes):
         state, info = env.reset()
         episode_reward = 0
+        state_history = []
         
         for step in range(max_steps):
             # Convert state to tensor
@@ -62,6 +63,9 @@ def train_agent(env, agent, num_episodes=500, max_steps=200, eval_freq=10, rende
             if random.random() < agent.target_update_freq:
                 agent.update_target_model()
             
+            # store state for next iteration
+            state_history.append(state)
+            
             state = next_state
             episode_reward += reward
             
@@ -69,6 +73,11 @@ def train_agent(env, agent, num_episodes=500, max_steps=200, eval_freq=10, rende
                 env.render()
             
             if done:
+                if truncated and episode > 300:
+                    print("Episode truncated at max steps")
+                    for state in state_history:
+                        print(state)
+                        print('\n-------------------\n')
                 break
         
         # Store metrics
@@ -85,17 +94,7 @@ def train_agent(env, agent, num_episodes=500, max_steps=200, eval_freq=10, rende
             print(f"Episode {episode+1}/{num_episodes}, Avg Reward: {avg_reward:.2f}, "
                  f"Avg Fires: {avg_fires:.1f}/{len(env.fire_nodes)}, "
                  f"Elapsed: {elapsed}")
-        
-        # Evaluation episodes
-        if (episode + 1) % eval_freq == 0:
-            eval_reward, eval_fires = evaluate_agent(env, agent, num_episodes=3)
-            eval_rewards.append(eval_reward)
-            eval_fires_extinguished.append(eval_fires)
-            
-            print(f"Evaluation - Avg Reward: {eval_reward:.2f}, "
-                 f"Avg Fires Extinguished: {eval_fires:.1f}/{len(env.fire_nodes)}")
 
-    
     # Print final results
     print_results(start_time, episode_rewards, fires_extinguished_per_episode, steps_per_episode)
     
@@ -107,48 +106,6 @@ def train_agent(env, agent, num_episodes=500, max_steps=200, eval_freq=10, rende
         'eval_fires_extinguished': eval_fires_extinguished
     }
 
-def evaluate_agent(env, agent, num_episodes=5, render=False):
-    """
-    Evaluate the agent's performance without exploration.
-    """
-    eval_rewards = []
-    eval_fires_extinguished = []
-    
-    # Store original epsilon and set to minimum for evaluation
-    original_epsilon = agent.epsilon
-    agent.epsilon = agent.epsilon_min
-    
-    for _ in range(num_episodes):
-        state, info = env.reset()
-        episode_reward = 0
-        done = False
-        
-        while not done:
-            # Convert state to tensor
-            state_tensor = torch.FloatTensor(state).unsqueeze(0).to(agent.device)
-            
-            # Select action (no exploration)
-            with torch.no_grad():
-                action = agent.policy_net(state_tensor).max(1).indices.view(1, 1)
-            
-            # Take action
-            next_state, reward, terminated, truncated, info = env.step(action.item())
-            done = terminated or truncated
-            
-            episode_reward += reward
-            state = next_state
-            
-            if render:
-                env.render()
-                print(f"Acción seleccionada: {action}")
-        
-        eval_rewards.append(episode_reward)
-        eval_fires_extinguished.append(info['fires_extinguished'])
-    
-    # Restore original epsilon
-    agent.epsilon = original_epsilon
-    
-    return np.mean(eval_rewards), np.mean(eval_fires_extinguished)
 
 def visualize_agent_performance(metrics):
     """
@@ -194,6 +151,8 @@ def visualize_agent_performance(metrics):
     plt.show()
 
 if __name__ == "__main__":
+    steps = 300
+    
     # Create environment with a random graph
     graph = generate_graph(num_incendios=8, num_estanques=3)
     
@@ -203,7 +162,7 @@ if __name__ == "__main__":
     plt_graph.show()
     
     # Create environment
-    env = FirefightingEnv(graph=graph, max_steps=200)
+    env = FirefightingEnv(graph=graph, max_steps=steps)
     
     # Set up the agent
     state_dim = env.observation_space.shape[0]
@@ -212,19 +171,8 @@ if __name__ == "__main__":
     agent = DQNAgent(state_dim, action_dim, vehicle_type)
     
     # Train the agent
-    metrics = train_agent(env, agent, num_episodes=1000, max_steps=200, 
+    metrics = train_agent(env, agent, num_episodes=500, max_steps=steps, 
                         eval_freq=10, render_training=False)
     
     # Visualize results
     visualize_agent_performance(metrics)
-    
-    # Run a final demonstration with the trained agent
-    print("\nRunning demonstration with trained agent...")
-    
-    # Create a new environment for demonstration
-    demo_env = FirefightingEnv(graph=graph, render_mode="human")
-    
-    # Evaluate the trained agent
-    eval_reward, eval_fires = evaluate_agent(demo_env, agent, num_episodes=1, render=True)
-    print(f"Demo Performance - Reward: {eval_reward:.2f}, "
-         f"Fires Extinguished: {eval_fires:.1f}/{len(demo_env.fire_nodes)}")

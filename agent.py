@@ -9,12 +9,6 @@ from enum import Enum
 from replay_memory import *
 from dqn import DQN
 
-class Action(Enum):
-    MOVE = 0
-    REFILL = 1
-    EXTINGUISH = 2
-    
-
 class DQNAgent:
     def __init__(self, state_dim, action_dim, vehicle_type):
         # Device configuration
@@ -87,7 +81,7 @@ class DQNAgent:
         
         target_qs = self.target_net(next_states).max(1).values.reshape(-1, 1).to(self.device)
         
-        y_js = rewards + self.gamma * target_qs
+        y_js = rewards + (self.gamma * target_qs)
         
         loss = F.mse_loss(predicted_qs, y_js)
         self.optimizer.zero_grad()
