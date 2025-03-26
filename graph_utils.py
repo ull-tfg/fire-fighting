@@ -4,103 +4,72 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 
-def generate_graph(num_incendios=10, num_estanques=4):
+def generate_graph(fires=8, tanks=3, starters=3):
+    """
+    Genera un grafo completamente conectado con nodos representando incendios y tanques.
+    
+    Parámetros:
+    - fires (int): Número total de nodos de incendios
+    - tanks (int): Número de nodos iniciales (tanques)
+    - starters (int): Número de nodos iniciales
+    
+    Retorna:
+    - nx.Graph: Grafo completamente conectado
+    """
+    # Crear un grafo vacío
     G = nx.Graph()
     
-    # Crear nodos
-    incendios = [f"incendio_{i}" for i in range(num_incendios)]
-    estanques = [f"estanque_{i}" for i in range(num_estanques)]
-    nodos = incendios + estanques
+    # Agregar nodos de tanques como nodos iniciales
+    for i in range(tanks):
+        G.add_node(f'tank_{i}', type='tank')
     
-    # Añadir nodos con atributos
-    for nodo in nodos:
-        if "incendio" in nodo:
-            G.add_node(nodo, tipo='incendio', water_to_extinguish=random.randint(50, 100))
-        else:
-            G.add_node(nodo, tipo='estanque', water_capacity=random.randint(1000, 2000))
+    # Agregar nodos de incendios
+    for i in range(fires):
+        G.add_node(f'fire_{i}', type='fire', water_to_extinguish=random.randint(50, 250))
+
+    # Agregar nodos iniciales
+    for i in range(starters):
+        G.add_node(f'starter_{i}', type='starter')
     
-    # Crear una estructura base conectada
-    # Primero, conectar todos los nodos en una cadena para garantizar conectividad
-    for i in range(len(nodos) - 1):
-        G.add_edge(nodos[i], nodos[i + 1], 
-                  ancho=random.choice([2, 3]),  # Evitar caminos muy estrechos
-                  tiempo_viaje=random.randint(1, 5))
-    
-    # Asegurar que cada incendio tiene al menos un camino a un estanque
-    for incendio in incendios:
-        if not any(nx.has_path(G, incendio, estanque) for estanque in estanques):
-            estanque = random.choice(estanques)
-            G.add_edge(incendio, estanque, 
-                      ancho=random.choice([2, 3]),
-                      tiempo_viaje=random.randint(1, 5))
-    
-    # Añadir conexiones adicionales para mayor conectividad
-    for _ in range(len(nodos)):
-        nodo1 = random.choice(nodos)
-        nodo2 = random.choice(nodos)
-        if nodo1 != nodo2 and not G.has_edge(nodo1, nodo2):
-            G.add_edge(nodo1, nodo2, 
-                      ancho=random.choice([2, 3]),
-                      tiempo_viaje=random.randint(1, 5))
-    
-    # Validar el grafo
-    validate_graph(G, incendios, estanques)
+    # Conectar todos los nodos entre sí
+    for node1 in G.nodes():
+        for node2 in G.nodes():
+            if node1 != node2:
+                G.add_edge(node1, node2)
     
     return G
 
-def validate_graph(G, incendios, estanques):
-    # Verificar conectividad
-    if not nx.is_connected(G):
-        raise ValueError("El grafo no está completamente conectado")
-    
-    # Verificar acceso a estanques
-    for incendio in incendios:
-        if not any(nx.has_path(G, incendio, estanque) for estanque in estanques):
-            raise ValueError(f"El incendio {incendio} no tiene acceso a ningún estanque")
-    
-    # Verificar anchos de camino
-    for u, v, data in G.edges(data=True):
-        if 'ancho' not in data or data['ancho'] < 1:
-            raise ValueError(f"Camino entre {u} y {v} no tiene ancho válido")
-        if 'tiempo_viaje' not in data or data['tiempo_viaje'] < 1:
-            raise ValueError(f"Camino entre {u} y {v} no tiene tiempo de viaje válido")
-
 def visualize_graph(G):
-    plt.figure(figsize=(12, 8))
-    pos = nx.spring_layout(G, k=1, iterations=50)
+    """
+    Visualiza un grafo utilizando la librería NetworkX.
     
-    # Dibujar nodos
-    incendios = [n for n, attr in G.nodes(data=True) if attr['tipo'] == 'incendio']
-    estanques = [n for n, attr in G.nodes(data=True) if attr['tipo'] == 'estanque']
+    Parámetros:
+    - G (nx.Graph): Grafo a visualizar
     
-    nx.draw_networkx_nodes(G, pos, nodelist=incendios, node_color='red', 
-                          node_size=500, label='Incendios')
-    nx.draw_networkx_nodes(G, pos, nodelist=estanques, node_color='blue', 
-                          node_size=500, label='Estanques')
+    Retorna:
+    - matplotlib.figure.Figure: Figura del grafo
+    """
+    # Crear una nueva figura con un tamaño específico
+    fig = plt.figure(figsize=(12, 8))
     
-    # Dibujar aristas con información
-    edge_labels = {(u, v): f"A:{d['ancho']}\nT:{d['tiempo_viaje']}" 
-                  for u, v, d in G.edges(data=True)}
-    nx.draw_networkx_edges(G, pos)
-    nx.draw_networkx_edge_labels(G, pos, edge_labels, font_size=8)
+    # Crear un layout para el grafo
+    pos = nx.spring_layout(G, seed=42)  # seed para reproducibilidad
     
-    # Etiquetas de nodos con información
-    labels = {}
-    for node in G.nodes():
-        if 'incendio' in node:
-            water = G.nodes[node]['water_to_extinguish']
-            labels[node] = f"{node}\n({water})"
-        else:
-            labels[node] = node
+    # Crear un diccionario de colores para los nodos
+    node_colors = {
+        'tank': 'blue',
+        'fire': 'red',
+        'starter': 'yellow'
+    }
     
-    nx.draw_networkx_labels(G, pos, labels, font_size=8)
+    # Asignar colores a los nodos
+    colors = [node_colors[G.nodes[node]['type']] for node in G.nodes()]
     
-    plt.title("Grafo del Entorno de Bomberos")
-    plt.legend()
-    plt.axis('off')
-    plt.tight_layout()
+    # Dibujar el grafo
+    nx.draw(G, pos, with_labels=True, node_color=colors, node_size=500)
     
-    return plt
+    # Retornar la figura
+    return fig
 
 def format_time(seconds):
     return time.strftime('%H:%M:%S', time.gmtime(seconds))

@@ -45,19 +45,44 @@ class DQNAgent:
     def update_target_model(self):
         self.target_net.load_state_dict(self.policy_net.state_dict())
         
-    def select_action(self, state):
+    # Ejemplo visual
+    # Valores Q originales: [2.1, 1.5, 3.7, 0.9, 2.6]
+    #                        ↑     ↑     ↑    ↑    ↑
+    #                       A0    A1    A2    A3   A4
+    #
+    # Acciones disponibles: [A0, A3]
+    #
+    # Máscara: [0, -∞, -∞, 0, -∞]
+    #
+    # Valores Q enmascarados: [2.1, -∞, -∞, 0.9, -∞]
+    #
+    # Acción seleccionada: A0 (valor Q más alto entre las disponibles)
+    def select_action(self, state, available_actions=None):
         sample = random.random()
         eps_threshold = self.epsilon_min + (self.epsilon - self.epsilon_min) * np.exp(-1.0 * self.steps_done / self.epsilon_decay)
         self.steps_done += 1
         if sample > eps_threshold:
             with torch.no_grad():
                 state = state.to(self.device)
-                # t.max(1) will return the largest column value of each row.
-                # second column on max result is index of where max element was
-                # found, so we pick action with the larger expected reward.
-                return self.policy_net(state).max(1).indices.view(1, 1).to(self.device)
+                q_values = self.policy_net(state)
+                # Aplicar máscara si hay acciones disponibles específicas
+                if available_actions is not None:
+                    # Crear máscara de acciones inválidas (todos -infinito excepto las acciones disponibles)
+                    action_mask = torch.ones_like(q_values) * float('-inf')
+                    for action_idx in available_actions:
+                        action_mask[0, action_idx] = 0
+                    # Aplicar la máscara
+                    masked_q_values = q_values + action_mask
+                    return masked_q_values.max(1).indices.view(1, 1)
+                else:
+                    return q_values.max(1).indices.view(1, 1)
         else:
-            return torch.tensor([[random.randrange(self.action_dim)]], device=self.device, dtype=torch.long)
+            # Para exploración aleatoria, elegir solo de las acciones disponibles
+            if available_actions is not None and len(available_actions) > 0:
+                action = random.choice(available_actions)
+                return torch.tensor([[action]], device=self.device, dtype=torch.long)
+            else:
+                return torch.tensor([[random.randrange(self.action_dim)]], device=self.device, dtype=torch.long)
         
     def learn(self, batchsize):
         if len(self.memory) < batchsize:

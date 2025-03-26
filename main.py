@@ -43,15 +43,22 @@ def train_multi_agent(env, agents, num_episodes=500, max_steps=200, eval_freq=10
         states, info = env.reset()
         episode_reward = 0
         agent_episode_rewards = [0] * num_agents
+        render_training = False
+        if episode % 100 == 0:
+            render_training = True
         
         for step in range(max_steps):
             # Select actions for all agents
             actions = []
             for agent_id, agent in enumerate(agents):
                 state_tensor = torch.FloatTensor(states[agent_id]).unsqueeze(0)
-                action = agent.select_action(state_tensor)
+                # Obtener índices de acciones disponibles para este agente
+                available_actions = [
+                    env.all_actions.index(action) 
+                    for action in env.agent_action_spaces[agent_id]['available']
+                ]
+                action = agent.select_action(state_tensor, available_actions)
                 actions.append(action.item())
-            
             # Take actions in environment
             next_states, rewards, terminated, truncated, info = env.step(actions)
             done = terminated or truncated
@@ -61,29 +68,23 @@ def train_multi_agent(env, agents, num_episodes=500, max_steps=200, eval_freq=10
                 # Store transition in memory
                 agent.memory.push(states[agent_id], actions[agent_id], 
                                   next_states[agent_id], rewards[agent_id], done)
-                
                 # Learn from experience
                 agent.learn(agent.batch_size)
-                
                 # Soft update target network
                 if random.random() < agent.target_update_freq:
                     agent.update_target_model()
-                
                 # Update agent rewards
                 agent_episode_rewards[agent_id] += rewards[agent_id]
             
             # Update total episode reward
             episode_reward += sum(rewards)
-            
             # Update states for next iteration
             states = next_states
-            
-            if render_training and (episode % 50 == 0 or episode >= num_episodes - 10):
+            if render_training:
                 env.render()
-            
             if done:
                 break
-        
+    
         # Store metrics
         episode_rewards.append(episode_reward)
         total_fires_extinguished.append(info['fires_extinguished'])
@@ -150,7 +151,7 @@ def evaluate_agents(env, agents, num_eval_episodes=5):
     # Save and restore exploration rates
     original_eps = [agent.epsilon for agent in agents]
     for agent in agents:
-        agent.epsilon = 0.01  # Minimal exploration during evaluation
+        agent.epsilon = 0.00  # Minimal exploration during evaluation
     
     for _ in range(num_eval_episodes):
         states, info = env.reset()
@@ -161,7 +162,11 @@ def evaluate_agents(env, agents, num_eval_episodes=5):
             actions = []
             for agent_id, agent in enumerate(agents):
                 state_tensor = torch.FloatTensor(states[agent_id]).unsqueeze(0)
-                action = agent.select_action(state_tensor)
+                available_actions = [
+                    env.all_actions.index(action) 
+                    for action in env.agent_action_spaces[agent_id]['available']
+                ]
+                action = agent.select_action(state_tensor, available_actions)
                 actions.append(action.item())
             
             next_states, rewards, terminated, truncated, info = env.step(actions)
@@ -303,25 +308,23 @@ def plot_agent_cooperation(metrics, num_agents):
     plt.show()
 
 if __name__ == "__main__":
-    steps = 300
+    steps = 300  # Maximum steps per episode
     num_agents = 3  # Number of firefighting agents
     
     # Create environment with a random graph
-    graph = generate_graph(num_incendios=8, num_estanques=3)
-    
+    graph = generate_graph()
     # Visualize the graph
     plt_graph = visualize_graph(graph)
     plt_graph.savefig('environment_graph.png')
-    plt_graph.show()
+    plt.show()
     
     # Create multi-agent environment
     env = FirefightingEnv(graph=graph, max_steps=steps, num_agents=num_agents)
-    
     # Set up the agents with different vehicle types for heterogeneity
     vehicle_types = {
         0: {'capacity': 200, 'width': 2},  # Standard vehicle
-        1: {'capacity': 300, 'width': 1},  # Large capacity, narrow spray
-        2: {'capacity': 150, 'width': 3}   # Small capacity, wide spray
+        1: {'capacity': 100, 'width': 1},  # Large capacity, narrow spray
+        2: {'capacity': 500, 'width': 4}   # Small capacity, wide spray
     }
     
     # Update environment with vehicle types
@@ -347,7 +350,7 @@ if __name__ == "__main__":
     metrics = train_multi_agent(
         env=env, 
         agents=agents, 
-        num_episodes=500, 
+        num_episodes=20000, 
         max_steps=steps,
         eval_freq=10, 
         render_training=False
@@ -356,3 +359,13 @@ if __name__ == "__main__":
     # Visualize results
     visualize_multi_agent_performance(metrics, num_agents)
     plot_agent_cooperation(metrics, num_agents)
+
+    # View render environment with trained agents
+    train_multi_agent(
+        env=env, 
+        agents=agents, 
+        num_episodes=1, 
+        max_steps=steps,
+        eval_freq=1,
+        render_training=True
+    )
