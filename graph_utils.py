@@ -35,7 +35,9 @@ def generate_graph(fires=8, tanks=3, starters=3):
     for node1 in G.nodes():
         for node2 in G.nodes():
             if node1 != node2:
-                G.add_edge(node1, node2)
+                # Generar un tiempo aleatorio entre 1 y 20
+                transit_time = random.randint(1, 3)
+                G.add_edge(node1, node2, transit_time=transit_time)
     
     return G
 
@@ -67,6 +69,10 @@ def visualize_graph(G):
     
     # Dibujar el grafo
     nx.draw(G, pos, with_labels=True, node_color=colors, node_size=500)
+
+    # Dibujar etiquetas de las aristas
+    edge_labels = nx.get_edge_attributes(G, 'transit_time')
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
     
     # Retornar la figura
     return fig

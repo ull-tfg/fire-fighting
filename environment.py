@@ -71,13 +71,20 @@ class FirefightingEnv(gym.Env):
         # - Agent's final destination (len(all_nodes))
         # - Other agents' next destinations (len(all_nodes) * (num_agents-1))
         # - Other agents' final destinations (len(all_nodes) * (num_agents-1))
+
         self.state_dim = (
             len(self.all_nodes) * len(self.all_nodes) +  # Full adjacency matrix
             len(self.all_nodes) +    # Active fire nodes
             len(self.all_nodes) +    # Water source nodes
             len(self.all_nodes) +    # One-hot encoding of agent's position
             1 +                      # Current water level
-            len(self.all_nodes) * (self.num_agents - 1)   # Other agents' positions
+            len(self.all_nodes) * (self.num_agents - 1) +  # Other agents' positions
+            1 +                      # Transit status
+            1 +                      # Transit time remaining
+            len(self.all_nodes) +    # Agent's next destination
+            len(self.all_nodes) +    # Agent's final destination
+            len(self.all_nodes) * (self.num_agents - 1) +  # Other agents' next destinations
+            len(self.all_nodes) * (self.num_agents - 1)    # Other agents' final destinations
         )
 
         # Define action space (one per agent)
@@ -183,41 +190,53 @@ class FirefightingEnv(gym.Env):
             info: Additional information
         """
         assert len(actions) == self.num_agents, f"Expected {self.num_agents} actions, got {len(actions)}"
-        
         rewards = [0] * self.num_agents
-        
-        # Process each agent's action
-        for agent_id, action in enumerate(actions):
-            # ESTA ES LA LÍNEA CLAVE - Las acciones YA son índices en all_actions
-            # No necesitamos convertirlas, solo verificar que sean válidas
-            target_node = self.all_actions[action]
-            
-            # Verificar si el nodo destino es uno válido para este agente
-            if target_node not in self.agent_action_spaces[agent_id]['available']:
-                #print(f"Invalid target for agent {agent_id}: {target_node}, staying put.")
-                rewards[agent_id] = 0
-                self.agent_rewards[agent_id] += 0   # No reward for invalid action (stay put) but should penalize?
-                continue
-            
+        # Tracking de agentes que completaron el movimiento en este turno
+        just_arrived_agents = set()
+
+        # 1. Procesar movimiento de todos los agentes
+        for agent_id in range(self.num_agents):
+            if self.agent_in_transit[agent_id]:
+                self.move_to_node(agent_id, self.agent_transit_target[agent_id])
+                # Si llegó a destino en este turno
+                if not self.agent_in_transit[agent_id]:
+                    just_arrived_agents.add(agent_id)
+                    # Actualizar espacio de acciones pero NO procesar acciones automáticas todavía
+                    self._update_agent_action_space(agent_id)
+
+        # 2. Procesar llegadas
+        for agent_id in just_arrived_agents:
+            arrived_node = self.agent_positions[agent_id]
+            action = self.all_actions.index(arrived_node)
             reward = self._process_agent_action(agent_id, action)
             rewards[agent_id] = reward
             self.agent_rewards[agent_id] += reward
-        
-        # Update global reward
+
+        # 3. Elección de acción para agentes que NO llegaron en este turno
+        for agent_id, action in enumerate(actions):
+            # Omitir agentes que están en tránsito o acaban de llegar
+            if self.agent_in_transit[agent_id] or agent_id in just_arrived_agents:
+                continue
+            # Procesar acción normalmente
+            target_node = self.all_actions[action]
+            if target_node not in self.agent_action_spaces[agent_id]['available']:
+                rewards[agent_id] = 0
+                continue
+            reward = self._process_agent_action(agent_id, action)
+            rewards[agent_id] = reward
+            self.agent_rewards[agent_id] += reward
+
+        # UPDATE global reward
         self.total_reward += sum(rewards)
-        
         # Advance step and check episode completion
         self.current_step += 1
-        
         # Terminate if all fires are extinguished
         terminated = all(fire <= 0 for fire in self.fires_remaining.values())
         truncated = self.current_step >= self.max_steps
-
         # Bonus reward for extinguishing all fires
         if terminated:
             for agent_id in range(self.num_agents):
                 rewards[agent_id] += 1000.0
-        
         # Get observations for all agents
         observations = tuple(self._get_observation(agent_id) for agent_id in range(self.num_agents))
         info = self._get_info()
@@ -227,18 +246,20 @@ class FirefightingEnv(gym.Env):
     def _update_agent_action_space(self, agent_id):
         """Actualiza el espacio de acciones para un agente basado en su posición actual."""
         available_actions = []
-
-        # PRIORIDAD 1: Incendios activos si tiene agua
+        # Incendios activos si tiene agua
         if self.agent_water_levels[agent_id] > 0:
             for fire_node in self.fire_actions:
                 if (fire_node in self.fires_remaining and 
                     self.fires_remaining[fire_node] > 0):
                     available_actions.append(fire_node)
-
-        # PRIORIDAD 2: Tanques si necesita agua
+        # Tanques si necesita agua
         if self.agent_water_levels[agent_id] < self.vehicle_types[agent_id]['capacity']:
             for tank_node in self.tank_actions:
                 available_actions.append(tank_node)
+        # Si está en tránsito, no puede hacer nada
+        if self.agent_in_transit[agent_id]:
+            # Si el agente está en tránsito, no puede hacer nada
+            available_actions = []
 
         # Actualizar el espacio de acciones del agente
         self.agent_action_spaces[agent_id]['available'] = available_actions
@@ -258,18 +279,58 @@ class FirefightingEnv(gym.Env):
         # Manejar caso inesperado
         raise ValueError(f"Acción no válida: {action}")
     
+    def move_to_node(self, agent_id, target_node):
+        """Move an agent to a target node with transit time."""
+        # Si ya está en el nodo destino, no hacer nada
+        if self.agent_positions[agent_id] == target_node:
+            return
+        # Si el agente ya está en tránsito, procesar el tiempo restante
+        if self.agent_in_transit[agent_id]:
+            # Reducir tiempo restante
+            self.agent_transit_time_remaining[agent_id] -= 1
+            # Si el tránsito ha terminado
+            if self.agent_transit_time_remaining[agent_id] <= 0:
+                # Eliminar agente de la arista
+                current_edge = (self.agent_transit_source[agent_id], self.agent_transit_target[agent_id])
+                if agent_id in self.edge_occupancy[current_edge]:
+                    self.edge_occupancy[current_edge].remove(agent_id)
+
+                # Actualizar posición y limpiar estado de tránsito
+                self.agent_positions[agent_id] = self.agent_transit_target[agent_id]
+                self.agent_in_transit[agent_id] = False
+                self.agent_transit_time_remaining[agent_id] = 0
+                self.agent_transit_source[agent_id] = None
+                self.agent_transit_target[agent_id] = None
+                self.final_destinations[agent_id] = None
+            return
+        # Iniciar un nuevo tránsito
+        current_node = self.agent_positions[agent_id]
+        transit_time = self.graph[current_node][target_node]['transit_time']
+        # Registrar estado de tránsito
+        self.agent_transit_source[agent_id] = current_node
+        self.agent_transit_target[agent_id] = target_node
+        self.final_destinations[agent_id] = target_node
+        self.agent_in_transit[agent_id] = True
+        self.agent_transit_time_remaining[agent_id] = transit_time
+        # Actualizar ocupación de aristas
+        edge = (current_node, target_node)
+        self.edge_occupancy[edge].append(agent_id)
+    
     def handle_fire_action(self, agent_id, fire_node):
         """Handle an agent's action to target a fire node."""
-        reward = 0
-
         # Check if fire still exists
         if fire_node not in self.fires_remaining or self.fires_remaining[fire_node] <= 0:
-            return reward
+            return 0
         # Check if agent has enough water
         if self.agent_water_levels[agent_id] <= 0:
-            return reward
-        # Move to the fire node
-        self.agent_positions[agent_id] = fire_node
+            return 0
+        
+        # Si el agente no está en el nodo de incendio, moverse hacia él
+        if self.agent_positions[agent_id] != fire_node:
+            self.move_to_node(agent_id, fire_node)
+            if self.agent_in_transit[agent_id]:
+                return 0  # No reward if agent is in transit
+            
         # Try to extinguish the fire
         water_needed = self.fires_remaining[fire_node]
         water_available = self.agent_water_levels[agent_id]
@@ -293,7 +354,12 @@ class FirefightingEnv(gym.Env):
         
     def handle_tank_action(self, agent_id, tank_node):
         """Handle an agent's action to target a water tank node."""
-        self.agent_positions[agent_id] = tank_node
+        # Si el agente no está en el nodo del tanque, moverse hacia él
+        if self.agent_positions[agent_id] != tank_node:
+            self.move_to_node(agent_id, tank_node)
+            # Si comenzó a moverse, no puede recargar agua aún
+            if self.agent_in_transit[agent_id]:
+                return 0
         # Refill water
         capacity = self.vehicle_types[agent_id]['capacity']
         self.agent_water_levels[agent_id] = capacity
@@ -328,7 +394,7 @@ class FirefightingEnv(gym.Env):
         ], dtype=np.float32)
 
         # Water source nodes (1 if it's a reservoir, 0 if not)
-        tank_nodes = np.array([1 if node in self.tank_nodes else 0 for node in self.all_nodes], dtype=np.float32)
+        water_nodes = np.array([1 if node in self.tank_nodes else 0 for node in self.all_nodes], dtype=np.float32)
 
         # Agent's position (one-hot encoding)
         agent_pos_encoding = np.zeros(len(self.all_nodes), dtype=np.float32)
@@ -342,15 +408,73 @@ class FirefightingEnv(gym.Env):
         # Other agents' positions (one-hot encoding for each)
         other_agents_pos = np.zeros(len(self.all_nodes) * (self.num_agents - 1), dtype=np.float32)
 
+        # Other agents' next destinations (in transit)
+        other_agents_next_dest = np.zeros(len(self.all_nodes) * (self.num_agents - 1), dtype=np.float32)
+
+        # Other agents' final destinations (planned target)
+        other_agents_final_dest = np.zeros(len(self.all_nodes) * (self.num_agents - 1), dtype=np.float32)
+
+        # Process other agents' positions and destinations
+        other_idx = 0
+        for other_id in range(self.num_agents):
+            if other_id != agent_id:
+                # Current position
+                other_pos = self.agent_positions[other_id]
+                other_pos_idx = self.node_to_idx[other_pos]
+                other_agents_pos[other_idx * len(self.all_nodes) + other_pos_idx] = 1.0
+
+                # If in transit, add next destination (immediate target)
+                if self.agent_in_transit[other_id]:
+                    next_dest = self.agent_transit_target[other_id]
+                    next_dest_idx = self.node_to_idx[next_dest]
+                    other_agents_next_dest[other_idx * len(self.all_nodes) + next_dest_idx] = 1.0
+
+                    final_dest = self.final_destinations[other_id]
+                    final_dest_idx = self.node_to_idx[final_dest]
+                    other_agents_final_dest[other_idx * len(self.all_nodes) + final_dest_idx] = 1.0
+
+                other_idx += 1
+
+        # Agent's own transit information
+        # Next destination (one-hot encoding)
+        agent_next_dest = np.zeros(len(self.all_nodes), dtype=np.float32)
+
+        # Final destination (one-hot encoding)
+        agent_final_dest = np.zeros(len(self.all_nodes), dtype=np.float32)
+
+        # Transit status
+        transit_status = np.array([1.0 if self.agent_in_transit[agent_id] else 0.0], dtype=np.float32)
+
+        # Transit time remaining (normalized)
+        max_travel_time = max(data['transit_time'] for _, _, data in self.graph.edges(data=True))
+        transit_time = np.array([
+            self.agent_transit_time_remaining[agent_id] / max_travel_time 
+            if self.agent_in_transit[agent_id] else 0.0
+        ], dtype=np.float32)
+
+        # If agent is in transit, set destinations
+        if self.agent_in_transit[agent_id]:
+            # Next/immediate destination
+            transit_target = self.agent_transit_target[agent_id]
+            target_idx = self.node_to_idx[transit_target]
+            final_idx = self.node_to_idx[self.final_destinations[agent_id]]
+            agent_next_dest[target_idx] = 1.0
+            agent_final_dest[final_idx] = 1.0
 
         # Concatenate all features into a single observation vector
         observation = np.concatenate([
             adjacency_matrix,      # Full graph adjacency matrix
             fire_status,           # Active fires
-            tank_nodes,           # Water sources
+            water_nodes,           # Water sources
             agent_pos_encoding,    # Agent's position
             water_level,           # Agent's water level
-            other_agents_pos       # Other agents' positions
+            other_agents_pos,      # Other agents' positions
+            transit_status,        # Agent's transit status
+            transit_time,          # Agent's transit time remaining
+            agent_next_dest,       # Agent's next destination
+            agent_final_dest,      # Agent's final destination
+            other_agents_next_dest,# Other agents' next destinations
+            other_agents_final_dest# Other agents' final destinations
         ])
 
         return observation
