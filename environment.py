@@ -207,6 +207,11 @@ class FirefightingEnv(gym.Env):
         # 2. Procesar llegadas
         for agent_id in just_arrived_agents:
             arrived_node = self.agent_positions[agent_id]
+            # Si el nodo de llegada no es un nodo de fuego o tanque, actualizar espacio de acción
+            if arrived_node not in self.fire_nodes and arrived_node not in self.tank_nodes:
+                self._update_agent_action_space(agent_id)
+                continue
+            # Si el agente llegó a un nodo de fuego o tanque, procesar acción
             action = self.all_actions.index(arrived_node)
             reward = self._process_agent_action(agent_id, action)
             rewards[agent_id] = reward
@@ -295,21 +300,46 @@ class FirefightingEnv(gym.Env):
                 if agent_id in self.edge_occupancy[current_edge]:
                     self.edge_occupancy[current_edge].remove(agent_id)
 
-                # Actualizar posición y limpiar estado de tránsito
-                self.agent_positions[agent_id] = self.agent_transit_target[agent_id]
-                self.agent_in_transit[agent_id] = False
-                self.agent_transit_time_remaining[agent_id] = 0
-                self.agent_transit_source[agent_id] = None
-                self.agent_transit_target[agent_id] = None
-                self.final_destinations[agent_id] = None
+                # Si el agente llegó a su destino final
+                if self.final_destinations[agent_id] == target_node:
+                    self.agent_positions[agent_id] = self.agent_transit_target[agent_id]
+                    self.agent_in_transit[agent_id] = False
+                    self.agent_transit_time_remaining[agent_id] = 0
+                    self.agent_transit_source[agent_id] = None
+                    self.agent_transit_target[agent_id] = None
+                    self.final_destinations[agent_id] = None
+                # Si el agente llegó a un nodo intermedio
+                else:
+                    # Actualizar posición del agente
+                    self.agent_positions[agent_id] = self.agent_transit_target[agent_id]
+                    # Si el objetivo no sigue siendo válido
+                    if self.final_destinations[agent_id] in self.fire_nodes:
+                        # Si el incendio fue extinguido, actualizar el espacio de acción
+                        if self.fires_remaining[self.final_destinations[agent_id]] <= 0:
+                            self.agent_in_transit[agent_id] = False
+                            self.agent_transit_time_remaining[agent_id] = 0
+                            self.agent_transit_source[agent_id] = None
+                            self.agent_transit_target[agent_id] = None
+                            self.final_destinations[agent_id] = None
+                            return
+                    # Actualizar objetivo de tránsito
+                    self.agent_transit_source[agent_id] = self.agent_transit_target[agent_id]
+                    new_target_node = self.final_destinations[agent_id]
+                    path = nx.shortest_path(self.graph, source=self.agent_transit_source[agent_id], target=new_target_node, weight='transit_time')
+                    # Si hay un siguiente nodo en el camino
+                    self.agent_transit_time_remaining[agent_id] = self.graph[self.agent_transit_source[agent_id]][path[1]]['transit_time']
+                    self.agent_transit_target[agent_id] = path[1]
             return
         # Iniciar un nuevo tránsito
+        path = nx.shortest_path(self.graph, source=self.agent_positions[agent_id], target=target_node, weight='transit_time')
+        # Move to the first node in the path
+        self.final_destinations[agent_id] = target_node
+        target_node = path[1] if len(path) > 1 else target_node
         current_node = self.agent_positions[agent_id]
         transit_time = self.graph[current_node][target_node]['transit_time']
         # Registrar estado de tránsito
-        self.agent_transit_source[agent_id] = current_node
         self.agent_transit_target[agent_id] = target_node
-        self.final_destinations[agent_id] = target_node
+        self.agent_transit_source[agent_id] = current_node
         self.agent_in_transit[agent_id] = True
         self.agent_transit_time_remaining[agent_id] = transit_time
         # Actualizar ocupación de aristas

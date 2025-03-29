@@ -6,38 +6,46 @@ import time
 
 def generate_graph(fires=8, tanks=3, starters=3):
     """
-    Genera un grafo completamente conectado con nodos representando incendios y tanques.
-    
-    Parámetros:
-    - fires (int): Número total de nodos de incendios
-    - tanks (int): Número de nodos iniciales (tanques)
-    - starters (int): Número de nodos iniciales
-    
-    Retorna:
-    - nx.Graph: Grafo completamente conectado
+    Genera un grafo conectado pero no completamente conectado con nodos 
+    representando incendios, tanques y nodos iniciales.
     """
     # Crear un grafo vacío
     G = nx.Graph()
     
-    # Agregar nodos de tanques como nodos iniciales
+    # Agregar nodos de tanques
     for i in range(tanks):
         G.add_node(f'tank_{i}', type='tank')
     
     # Agregar nodos de incendios
     for i in range(fires):
         G.add_node(f'fire_{i}', type='fire', water_to_extinguish=random.randint(50, 250))
-
+    
     # Agregar nodos iniciales
     for i in range(starters):
         G.add_node(f'starter_{i}', type='starter')
     
-    # Conectar todos los nodos entre sí
-    for node1 in G.nodes():
-        for node2 in G.nodes():
-            if node1 != node2:
-                # Generar un tiempo aleatorio entre 1 y 20
-                transit_time = random.randint(1, 3)
-                G.add_edge(node1, node2, transit_time=transit_time)
+    # Lista de todos los nodos
+    all_nodes = list(G.nodes())
+    
+    # PASO 1: Crear un árbol de expansión para asegurar conectividad básica
+    # (conecta todos los nodos en un camino mínimo)
+    for i in range(len(all_nodes) - 1):
+        node1 = all_nodes[i]
+        node2 = all_nodes[i + 1]
+        transit_time = random.randint(2, 8)
+        G.add_edge(node1, node2, transit_time=transit_time)
+    
+    # PASO 2: Agregar conexiones adicionales con cierta probabilidad
+    # Esto crea más caminos pero sin conectar todo con todo
+    connectivity_factor = 0.3  # Ajustar según necesidad (0-1)
+    
+    for i, node1 in enumerate(all_nodes):
+        for j, node2 in enumerate(all_nodes):
+            if i < j and not G.has_edge(node1, node2):
+                # Solo considerar pares no conectados aún
+                if random.random() < connectivity_factor:
+                    transit_time = random.randint(1, 15)
+                    G.add_edge(node1, node2, transit_time=transit_time)
     
     return G
 

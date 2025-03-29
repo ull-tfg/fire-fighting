@@ -317,16 +317,13 @@ if __name__ == "__main__":
     plt_graph = visualize_graph(graph)
     plt_graph.savefig('environment_graph.png')
     plt.show()
-    
-    # Create multi-agent environment
-    env = FirefightingEnv(graph=graph, max_steps=steps, num_agents=num_agents)
+
     # Set up the agents with different vehicle types for heterogeneity
     vehicle_types = {
         0: {'capacity': 200, 'width': 2},  # Standard vehicle
         1: {'capacity': 100, 'width': 1},  # Large capacity, narrow spray
         2: {'capacity': 500, 'width': 4}   # Small capacity, wide spray
     }
-    
     # Update environment with vehicle types
     env = FirefightingEnv(graph=graph, max_steps=steps, num_agents=num_agents, 
                         vehicle_types=vehicle_types)
@@ -337,8 +334,7 @@ if __name__ == "__main__":
         state_dim = env.observation_space[agent_id].shape[0]
         action_dim = env.action_space[agent_id].n
         vehicle_type = f"agent_{agent_id}"
-        
-        # Create agent with slightly different hyperparameters for diversity
+
         agent = DQNAgent(
             state_dim=state_dim, 
             action_dim=action_dim, 
@@ -350,7 +346,7 @@ if __name__ == "__main__":
     metrics = train_multi_agent(
         env=env, 
         agents=agents, 
-        num_episodes=20000, 
+        num_episodes=1000, 
         max_steps=steps,
         eval_freq=10, 
         render_training=False
@@ -369,3 +365,8 @@ if __name__ == "__main__":
         eval_freq=1,
         render_training=True
     )
+
+    # Importa la nueva clase
+    from interactive_viz import visualize_interactive
+    print("\nIniciando visualización interactiva...")
+    visualize_interactive(env, agents)
