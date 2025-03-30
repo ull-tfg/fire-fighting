@@ -77,10 +77,9 @@ class FirefightingEnv(gym.Env):
             len(self.all_nodes) +    # Active fire nodes
             len(self.all_nodes) +    # Water source nodes
             len(self.all_nodes) +    # One-hot encoding of agent's position
-            1 +                      # Current water level
+            self.num_agents + # Current water level of all agents
             len(self.all_nodes) * (self.num_agents - 1) +  # Other agents' positions
-            1 +                      # Transit status
-            1 +                      # Transit time remaining
+            self.num_agents +        # Transit time remaining of all agents
             len(self.all_nodes) +    # Agent's next destination
             len(self.all_nodes) +    # Agent's final destination
             len(self.all_nodes) * (self.num_agents - 1) +  # Other agents' next destinations
@@ -417,9 +416,10 @@ class FirefightingEnv(gym.Env):
                 neighbor_idx = self.node_to_idx[neighbor]
                 adjacency_matrix[i * len(self.all_nodes) + neighbor_idx] = 1.0
 
-        # Active fire nodes (1 if there's fire, 0 if extinguished)
+        # Active fire nodes (water needed to extinguish)
         fire_status = np.array([
-            1 if node in self.fires_remaining and self.fires_remaining[node] > 0 else 0 
+            self.fires_remaining[node]
+            if node in self.fires_remaining else 0.0
             for node in self.all_nodes
         ], dtype=np.float32)
 
@@ -431,16 +431,20 @@ class FirefightingEnv(gym.Env):
         pos_idx = self.node_to_idx[self.agent_positions[agent_id]]
         agent_pos_encoding[pos_idx] = 1.0
 
-        # Agent's water level (normalized)
-        max_capacity = self.vehicle_types[agent_id]['capacity']
-        water_level = np.array([self.agent_water_levels[agent_id] / max_capacity], dtype=np.float32)
+        # Agents water level
+        water_level = np.array([self.agent_water_levels[agent_id]], dtype=np.float32)
+        # Other agents' water levels
+        for other_id in range(self.num_agents):
+            if other_id != agent_id:
+                # Current water level
+                other_water_level = self.agent_water_levels[other_id]
+                # Add to the observation
+                water_level = np.append(water_level, other_water_level)
 
         # Other agents' positions (one-hot encoding for each)
         other_agents_pos = np.zeros(len(self.all_nodes) * (self.num_agents - 1), dtype=np.float32)
-
         # Other agents' next destinations (in transit)
         other_agents_next_dest = np.zeros(len(self.all_nodes) * (self.num_agents - 1), dtype=np.float32)
-
         # Other agents' final destinations (planned target)
         other_agents_final_dest = np.zeros(len(self.all_nodes) * (self.num_agents - 1), dtype=np.float32)
 
@@ -472,15 +476,15 @@ class FirefightingEnv(gym.Env):
         # Final destination (one-hot encoding)
         agent_final_dest = np.zeros(len(self.all_nodes), dtype=np.float32)
 
-        # Transit status
-        transit_status = np.array([1.0 if self.agent_in_transit[agent_id] else 0.0], dtype=np.float32)
-
-        # Transit time remaining (normalized)
-        max_travel_time = max(data['transit_time'] for _, _, data in self.graph.edges(data=True))
-        transit_time = np.array([
-            self.agent_transit_time_remaining[agent_id] / max_travel_time 
-            if self.agent_in_transit[agent_id] else 0.0
-        ], dtype=np.float32)
+        # All agents transit time remaining
+        transit_time = np.array([self.agent_transit_time_remaining[agent_id]], dtype=np.float32)
+        # Other agents' transit time remaining
+        for other_id in range(self.num_agents):
+            if other_id != agent_id:
+                # Current water level
+                other_transit_time = self.agent_transit_time_remaining[other_id]
+                # Add to the observation
+                transit_time = np.append(transit_time, other_transit_time)
 
         # If agent is in transit, set destinations
         if self.agent_in_transit[agent_id]:
@@ -499,7 +503,6 @@ class FirefightingEnv(gym.Env):
             agent_pos_encoding,    # Agent's position
             water_level,           # Agent's water level
             other_agents_pos,      # Other agents' positions
-            transit_status,        # Agent's transit status
             transit_time,          # Agent's transit time remaining
             agent_next_dest,       # Agent's next destination
             agent_final_dest,      # Agent's final destination

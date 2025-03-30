@@ -346,7 +346,7 @@ if __name__ == "__main__":
     metrics = train_multi_agent(
         env=env, 
         agents=agents, 
-        num_episodes=1000, 
+        num_episodes=20000, 
         max_steps=steps,
         eval_freq=10, 
         render_training=False
