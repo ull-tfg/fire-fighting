@@ -151,7 +151,8 @@ class FirefightingEnv(gym.Env):
         
         for agent_id in range(self.num_agents):
             available_nodes = [node for node in self.starter_nodes]
-            start_node = random.choice(available_nodes)
+            # start_node = random.choice(available_nodes)  # Randomly select a starting node
+            start_node = available_nodes[0] # All agents start at the same node for consistency in results (steps done)
             self.agent_positions[agent_id] = start_node
             
             # Start with all water
@@ -196,7 +197,9 @@ class FirefightingEnv(gym.Env):
         # 1. Procesar movimiento de todos los agentes
         for agent_id in range(self.num_agents):
             if self.agent_in_transit[agent_id]:
-                self.move_to_node(agent_id, self.agent_transit_target[agent_id])
+                reward = self.move_to_node(agent_id, self.agent_transit_target[agent_id])
+                rewards[agent_id] = reward
+                self.agent_rewards[agent_id] += reward
                 # Si llegó a destino en este turno
                 if not self.agent_in_transit[agent_id]:
                     just_arrived_agents.add(agent_id)
@@ -240,7 +243,7 @@ class FirefightingEnv(gym.Env):
         # Bonus reward for extinguishing all fires
         if terminated:
             for agent_id in range(self.num_agents):
-                rewards[agent_id] += 1000.0
+                rewards[agent_id] += 100.0
         # Get observations for all agents
         observations = tuple(self._get_observation(agent_id) for agent_id in range(self.num_agents))
         info = self._get_info()
@@ -287,7 +290,7 @@ class FirefightingEnv(gym.Env):
         """Move an agent to a target node with transit time."""
         # Si ya está en el nodo destino, no hacer nada
         if self.agent_positions[agent_id] == target_node:
-            return
+            return 0
         # Si el agente ya está en tránsito, procesar el tiempo restante
         if self.agent_in_transit[agent_id]:
             # Reducir tiempo restante
@@ -320,7 +323,7 @@ class FirefightingEnv(gym.Env):
                             self.agent_transit_source[agent_id] = None
                             self.agent_transit_target[agent_id] = None
                             self.final_destinations[agent_id] = None
-                            return
+                            return -20 # Penalización por ir a un nodo de fuego que iba a ser extinguido
                     # Actualizar objetivo de tránsito
                     self.agent_transit_source[agent_id] = self.agent_transit_target[agent_id]
                     new_target_node = self.final_destinations[agent_id]
@@ -328,7 +331,7 @@ class FirefightingEnv(gym.Env):
                     # Si hay un siguiente nodo en el camino
                     self.agent_transit_time_remaining[agent_id] = self.graph[self.agent_transit_source[agent_id]][path[1]]['transit_time']
                     self.agent_transit_target[agent_id] = path[1]
-            return
+            return 0 
         # Iniciar un nuevo tránsito
         path = nx.shortest_path(self.graph, source=self.agent_positions[agent_id], target=target_node, weight='transit_time')
         # Move to the first node in the path
@@ -349,10 +352,10 @@ class FirefightingEnv(gym.Env):
         """Handle an agent's action to target a fire node."""
         # Check if fire still exists
         if fire_node not in self.fires_remaining or self.fires_remaining[fire_node] <= 0:
-            return 0
+            return -20  # Penalización por intentar extinguir un incendio que ya no existe
         # Check if agent has enough water
         if self.agent_water_levels[agent_id] <= 0:
-            return 0
+            return -10
         
         # Si el agente no está en el nodo de incendio, moverse hacia él
         if self.agent_positions[agent_id] != fire_node:
@@ -367,9 +370,9 @@ class FirefightingEnv(gym.Env):
         self.fires_remaining[fire_node] -= water_used
         self.agent_water_levels[agent_id] -= water_used
         # Update rewards
-        reward = water_used  # Reward for water used
+        reward = water_used * 0.5  # Reward for water used
         if self.fires_remaining[fire_node] <= 0:
-            reward += 400.0  # Bonus for extinguishing fire
+            reward += 50.0  # Bonus for extinguishing fire
             self.fires_extinguished += 1
 
             # Si el incendio fue extinguido, actualizar los espacios de acción de TODOS los agentes
