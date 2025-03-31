@@ -235,6 +235,13 @@ class FirefightingEnv(gym.Env):
 
         # UPDATE global reward
         self.total_reward += sum(rewards)
+        # Penalty for each step taken
+        step_penalty_base = -2.0
+        step_penalty_factor = 1.0 + (self.current_step / self.max_steps) * 0.5
+        for agent_id in range(self.num_agents):
+            penalty = step_penalty_base * step_penalty_factor
+            rewards[agent_id] += penalty
+            self.agent_rewards[agent_id] += penalty
         # Advance step and check episode completion
         self.current_step += 1
         # Terminate if all fires are extinguished
@@ -242,8 +249,12 @@ class FirefightingEnv(gym.Env):
         truncated = self.current_step >= self.max_steps
         # Bonus reward for extinguishing all fires
         if terminated:
+            efficiency_factor = 1.0 - (self.current_step / self.max_steps)
+            completion_bonus_base = 75.0
+            completion_bonus = completion_bonus_base * (1.0 + efficiency_factor * 2)
             for agent_id in range(self.num_agents):
-                rewards[agent_id] += 100.0
+                rewards[agent_id] += completion_bonus
+                self.agent_rewards[agent_id] += completion_bonus
         # Get observations for all agents
         observations = tuple(self._get_observation(agent_id) for agent_id in range(self.num_agents))
         info = self._get_info()
