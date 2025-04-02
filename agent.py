@@ -10,7 +10,7 @@ from replay_memory import *
 from dqn import DQN
 
 class DQNAgent:
-    def __init__(self, state_dim, action_dim, vehicle_type):
+    def __init__(self, state_dim, action_dim, vehicle_type, hidden_layers=[128, 128], activation_fn=F.relu):
         # Device configuration
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
@@ -21,21 +21,21 @@ class DQNAgent:
         
         # Hyperparameters
         self.batch_size = 128 # is the number of samples to train on in a single batch
-        self.gamma = 0.99  # is the discount factor for future rewards
+        self.gamma = 0.926086058732054  # is the discount factor for future rewards
         self.epsilon = 0.95
         self.epsilon_min = 0.1
-        self.epsilon_decay = 10000  # Controls the rate of exponential decay for epsilon, higher is slower
-        self.target_update_freq = 0.0005  # is the update rate of the target network
-        self.learning_rate = 1e-4  # is the learning rate of the optimizer (AdamW)
+        self.epsilon_decay = 5165  # Controls the rate of exponential decay for epsilon, higher is slower
+        self.tau = 0.004388482077317656 # is the factor for soft target network update
+        self.learning_rate = 0.00014334924865935545  # is the learning rate of the optimizer (AdamW)
         
         # Initialize networks
-        self.policy_net = DQN(state_dim, action_dim).to(self.device)
-        self.target_net = DQN(state_dim, action_dim).to(self.device)
+        self.policy_net = DQN(state_dim, action_dim, hidden_layers, activation_fn).to(self.device)
+        self.target_net = DQN(state_dim, action_dim, hidden_layers, activation_fn).to(self.device)
         self.update_target_model()
         self.target_net.eval()
         
         # Initialize replay memory with capacity
-        self.memory = ReplayMemory(capacity=10000)
+        self.memory = ReplayMemory(capacity=50000)
         
         # Initialize optimizer
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.learning_rate, amsgrad=True)
@@ -43,7 +43,12 @@ class DQNAgent:
         self.steps_done = 0
 
     def update_target_model(self):
-        self.target_net.load_state_dict(self.policy_net.state_dict())
+    # Actualización suave (Polyak)
+        for target_param, policy_param in zip(self.target_net.parameters(), 
+                                             self.policy_net.parameters()):
+            target_param.data.copy_(
+                self.tau * policy_param.data + (1 - self.tau) * target_param.data
+            )
         
     # Ejemplo visual
     # Valores Q originales: [2.1, 1.5, 3.7, 0.9, 2.6]
@@ -106,7 +111,7 @@ class DQNAgent:
         
         target_qs = self.target_net(next_states).max(1).values.reshape(-1, 1).to(self.device)
         
-        y_js = rewards + (self.gamma * target_qs)
+        y_js = rewards + (self.gamma * target_qs * (1 - dones))
         
         loss = F.mse_loss(predicted_qs, y_js)
         self.optimizer.zero_grad()

@@ -198,11 +198,12 @@ class FirefightingEnv(gym.Env):
         for agent_id in range(self.num_agents):
             if self.agent_in_transit[agent_id]:
                 reward = self.move_to_node(agent_id, self.agent_transit_target[agent_id])
-                rewards[agent_id] = reward
+                rewards[agent_id] += reward
                 self.agent_rewards[agent_id] += reward
                 # Si llegó a destino en este turno
                 if not self.agent_in_transit[agent_id]:
-                    just_arrived_agents.add(agent_id)
+                    if reward >= 0:
+                        just_arrived_agents.add(agent_id)
                     # Actualizar espacio de acciones pero NO procesar acciones automáticas todavía
                     self._update_agent_action_space(agent_id)
 
@@ -216,7 +217,7 @@ class FirefightingEnv(gym.Env):
             # Si el agente llegó a un nodo de fuego o tanque, procesar acción
             action = self.all_actions.index(arrived_node)
             reward = self._process_agent_action(agent_id, action)
-            rewards[agent_id] = reward
+            rewards[agent_id] += reward
             self.agent_rewards[agent_id] += reward
 
         # 3. Elección de acción para agentes que NO llegaron en este turno
@@ -230,31 +231,17 @@ class FirefightingEnv(gym.Env):
                 rewards[agent_id] = 0
                 continue
             reward = self._process_agent_action(agent_id, action)
-            rewards[agent_id] = reward
+            rewards[agent_id] += reward
             self.agent_rewards[agent_id] += reward
 
         # UPDATE global reward
         self.total_reward += sum(rewards)
-        # Penalty for each step taken
-        step_penalty_base = -2.0
-        step_penalty_factor = 1.0 + (self.current_step / self.max_steps) * 0.5
-        for agent_id in range(self.num_agents):
-            penalty = step_penalty_base * step_penalty_factor
-            rewards[agent_id] += penalty
-            self.agent_rewards[agent_id] += penalty
         # Advance step and check episode completion
         self.current_step += 1
         # Terminate if all fires are extinguished
         terminated = all(fire <= 0 for fire in self.fires_remaining.values())
         truncated = self.current_step >= self.max_steps
-        # Bonus reward for extinguishing all fires
-        if terminated:
-            efficiency_factor = 1.0 - (self.current_step / self.max_steps)
-            completion_bonus_base = 75.0
-            completion_bonus = completion_bonus_base * (1.0 + efficiency_factor * 2)
-            for agent_id in range(self.num_agents):
-                rewards[agent_id] += completion_bonus
-                self.agent_rewards[agent_id] += completion_bonus
+
         # Get observations for all agents
         observations = tuple(self._get_observation(agent_id) for agent_id in range(self.num_agents))
         info = self._get_info()
@@ -264,20 +251,43 @@ class FirefightingEnv(gym.Env):
     def _update_agent_action_space(self, agent_id):
         """Actualiza el espacio de acciones para un agente basado en su posición actual."""
         available_actions = []
+
+        # Si está en tránsito, no puede hacer nada
+        if self.agent_in_transit[agent_id]:
+            self.agent_action_spaces[agent_id]['available'] = []
+            return
+
         # Incendios activos si tiene agua
         if self.agent_water_levels[agent_id] > 0:
             for fire_node in self.fire_actions:
-                if (fire_node in self.fires_remaining and 
-                    self.fires_remaining[fire_node] > 0):
+                # Verificar que el incendio aún existe
+                if fire_node not in self.fires_remaining or self.fires_remaining[fire_node] <= 0:
+                    continue
+
+                # Verificar si ya hay otro agente dirigiéndose a este incendio
+                agents_targeting_this_fire = [
+                    a for a in range(self.num_agents) 
+                    if (self.agent_in_transit[a] and self.final_destinations[a] == fire_node and a != agent_id) or
+                    # Esta línea adicional soluciona el problema de decisiones simultáneas
+                    (a in range(agent_id) and self.agent_positions[a] == self.agent_positions[agent_id] and
+                     not self.agent_in_transit[a] and self.agent_water_levels[a] > self.fires_remaining[fire_node])
+                ]
+
+                # Calcular agua necesaria y agua en camino
+                water_needed = self.fires_remaining[fire_node]
+                water_on_the_way = sum(
+                    min(self.agent_water_levels[a], water_needed) 
+                    for a in agents_targeting_this_fire
+                )
+
+                # Solo añadir el fuego si se necesita más agua
+                if water_needed > water_on_the_way:
                     available_actions.append(fire_node)
-        # Tanques si necesita agua
+                
+        # Añadir tanques si necesita agua
         if self.agent_water_levels[agent_id] < self.vehicle_types[agent_id]['capacity']:
             for tank_node in self.tank_actions:
                 available_actions.append(tank_node)
-        # Si está en tránsito, no puede hacer nada
-        if self.agent_in_transit[agent_id]:
-            # Si el agente está en tránsito, no puede hacer nada
-            available_actions = []
 
         # Actualizar el espacio de acciones del agente
         self.agent_action_spaces[agent_id]['available'] = available_actions
@@ -334,7 +344,7 @@ class FirefightingEnv(gym.Env):
                             self.agent_transit_source[agent_id] = None
                             self.agent_transit_target[agent_id] = None
                             self.final_destinations[agent_id] = None
-                            return -20 # Penalización por ir a un nodo de fuego que iba a ser extinguido
+                            return -20
                     # Actualizar objetivo de tránsito
                     self.agent_transit_source[agent_id] = self.agent_transit_target[agent_id]
                     new_target_node = self.final_destinations[agent_id]
@@ -366,8 +376,7 @@ class FirefightingEnv(gym.Env):
             return -20  # Penalización por intentar extinguir un incendio que ya no existe
         # Check if agent has enough water
         if self.agent_water_levels[agent_id] <= 0:
-            return -10
-        
+            return 0
         # Si el agente no está en el nodo de incendio, moverse hacia él
         if self.agent_positions[agent_id] != fire_node:
             self.move_to_node(agent_id, fire_node)
@@ -381,17 +390,20 @@ class FirefightingEnv(gym.Env):
         self.fires_remaining[fire_node] -= water_used
         self.agent_water_levels[agent_id] -= water_used
         # Update rewards
-        reward = water_used * 0.5  # Reward for water used
+        reward = water_used * 0.1  # Reward for water used
         if self.fires_remaining[fire_node] <= 0:
             reward += 50.0  # Bonus for extinguishing fire
             self.fires_extinguished += 1
-
             # Si el incendio fue extinguido, actualizar los espacios de acción de TODOS los agentes
             for aid in range(self.num_agents):
                 self._update_agent_action_space(aid)
         else:
             # Solo actualizar el espacio de acción del agente actual
             self._update_agent_action_space(agent_id)
+        # Aplicar factor de descuento temporal a la recompensa positiva
+        if reward > 0:
+            time_discount_factor = 1.0 - (self.current_step / self.max_steps)
+            reward = reward * time_discount_factor
 
         return reward
         

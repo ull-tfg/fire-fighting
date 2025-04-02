@@ -44,7 +44,7 @@ def generate_graph(fires=8, tanks=3, starters=3):
             if i < j and not G.has_edge(node1, node2):
                 # Solo considerar pares no conectados aún
                 if random.random() < connectivity_factor:
-                    transit_time = random.randint(1, 15)
+                    transit_time = random.randint(1, 8)
                     G.add_edge(node1, node2, transit_time=transit_time)
     
     return G

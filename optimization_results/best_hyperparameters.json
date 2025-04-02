@@ -1,0 +1,1 @@
+{"batch_size": 64, "learning_rate": 2.8150688961605343e-05, "gamma": 0.9077995524875666, "tau": 0.007076677811577534, "epsilon_decay": 14089, "n_layers": 3, "n_units_l0": 512, "n_units_l1": 256, "n_units_l2": 64, "activation": "relu"}

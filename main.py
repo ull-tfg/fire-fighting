@@ -66,13 +66,15 @@ def train_multi_agent(env, agents, num_episodes=500, max_steps=200, eval_freq=10
             # Store transitions and learn for each agent
             for agent_id, agent in enumerate(agents):
                 # Store transition in memory
-                agent.memory.push(states[agent_id], actions[agent_id], 
-                                  next_states[agent_id], rewards[agent_id], done)
+                agent.memory.push(
+                    states[agent_id], 
+                    actions[agent_id], 
+                    next_states[agent_id], 
+                    rewards[agent_id], 
+                    done)
                 # Learn from experience
                 agent.learn(agent.batch_size)
-                # Soft update target network
-                if random.random() < agent.target_update_freq:
-                    agent.update_target_model()
+                agent.update_target_model()  # Now update every step
                 # Update agent rewards
                 agent_episode_rewards[agent_id] += rewards[agent_id]
             
@@ -118,7 +120,7 @@ def train_multi_agent(env, agents, num_episodes=500, max_steps=200, eval_freq=10
                   f"Avg Fires Extinguished: {eval_fires:.1f}/{len(env.fire_nodes)}")
 
     # Print final results
-    print_results(start_time, episode_rewards, total_fires_extinguished, steps_per_episode)
+    #print_results(start_time, episode_rewards, total_fires_extinguished, steps_per_episode)
     print("Individual Agent Performance:")
     for agent_id in range(num_agents):
         avg_reward = np.mean(agent_rewards[agent_id][-50:])
@@ -241,8 +243,6 @@ def visualize_multi_agent_performance(metrics, num_agents):
     eval_x = eval_x[:len(metrics['eval_rewards'])]
     
     plt.plot(eval_x, metrics['eval_rewards'], label='Eval Rewards', color='blue')
-    plt.plot(eval_x, metrics['eval_fires_extinguished'], 
-             label='Eval Fires Extinguished', color='red')
     plt.title('Evaluation Metrics')
     plt.xlabel('Episode')
     plt.legend()
@@ -309,7 +309,7 @@ def plot_agent_cooperation(metrics, num_agents):
 
 if __name__ == "__main__":
     steps = 300  # Maximum steps per episode
-    num_agents = 3  # Number of firefighting agents
+    num_agents = 1  # Number of firefighting agents
     
     # Create environment with a random graph
     graph = generate_graph()
@@ -346,7 +346,7 @@ if __name__ == "__main__":
     metrics = train_multi_agent(
         env=env, 
         agents=agents, 
-        num_episodes=20000, 
+        num_episodes=1000, 
         max_steps=steps,
         eval_freq=10, 
         render_training=False
