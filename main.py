@@ -308,11 +308,11 @@ def plot_agent_cooperation(metrics, num_agents):
     plt.show()
 
 if __name__ == "__main__":
-    steps = 300  # Maximum steps per episode
-    num_agents = 1  # Number of firefighting agents
+    steps = 150  # Maximum steps per episode
+    num_agents = 3  # Number of firefighting agents
     
     # Create environment with a random graph
-    graph = generate_graph()
+    graph = generate_graph(fires=8, tanks=3)
     # Visualize the graph
     plt_graph = visualize_graph(graph)
     plt_graph.savefig('environment_graph.png')
@@ -321,8 +321,8 @@ if __name__ == "__main__":
     # Set up the agents with different vehicle types for heterogeneity
     vehicle_types = {
         0: {'capacity': 200, 'width': 2},  # Standard vehicle
-        1: {'capacity': 100, 'width': 1},  # Large capacity, narrow spray
-        2: {'capacity': 500, 'width': 4}   # Small capacity, wide spray
+        1: {'capacity': 100, 'width': 1},  # Small capacity, narrow spray
+        2: {'capacity': 350, 'width': 3}   # Large capacity, wide spray
     }
     # Update environment with vehicle types
     env = FirefightingEnv(graph=graph, max_steps=steps, num_agents=num_agents, 

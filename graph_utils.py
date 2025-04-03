@@ -33,7 +33,8 @@ def generate_graph(fires=8, tanks=3, starters=3):
         node1 = all_nodes[i]
         node2 = all_nodes[i + 1]
         transit_time = random.randint(2, 8)
-        G.add_edge(node1, node2, transit_time=transit_time)
+        width = random.randint(1, 5)
+        G.add_edge(node1, node2, transit_time=transit_time, width=width)
     
     # PASO 2: Agregar conexiones adicionales con cierta probabilidad
     # Esto crea más caminos pero sin conectar todo con todo
@@ -45,7 +46,8 @@ def generate_graph(fires=8, tanks=3, starters=3):
                 # Solo considerar pares no conectados aún
                 if random.random() < connectivity_factor:
                     transit_time = random.randint(1, 8)
-                    G.add_edge(node1, node2, transit_time=transit_time)
+                    width = random.randint(1, 5)
+                    G.add_edge(node1, node2, transit_time=transit_time, width=width)
     
     return G
 
@@ -79,7 +81,9 @@ def visualize_graph(G):
     nx.draw(G, pos, with_labels=True, node_color=colors, node_size=500)
 
     # Dibujar etiquetas de las aristas
-    edge_labels = nx.get_edge_attributes(G, 'transit_time')
+    edge_labels = {}
+    for u, v, attrs in G.edges(data=True):
+        edge_labels[(u, v)] = f"t:{attrs['transit_time']}, w:{attrs['width']}"
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
     
     # Retornar la figura

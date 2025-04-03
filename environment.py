@@ -71,7 +71,6 @@ class FirefightingEnv(gym.Env):
         # - Agent's final destination (len(all_nodes))
         # - Other agents' next destinations (len(all_nodes) * (num_agents-1))
         # - Other agents' final destinations (len(all_nodes) * (num_agents-1))
-
         self.state_dim = (
             len(self.all_nodes) * len(self.all_nodes) +  # Full adjacency matrix
             len(self.all_nodes) +    # Active fire nodes
@@ -96,7 +95,7 @@ class FirefightingEnv(gym.Env):
             self.agent_action_spaces[agent_id] = {
                 'fires': self.fire_actions.copy(),
                 'tanks': self.tank_actions.copy(),
-                'available': self.all_actions.copy()  # Este es el que se actualizará dinámicamente
+                'available': self.all_actions.copy()
             }
         # Para compatibilidad con gymnasium
         self.action_space = spaces.Tuple([
@@ -235,13 +234,23 @@ class FirefightingEnv(gym.Env):
             self.agent_rewards[agent_id] += reward
 
         # UPDATE global reward
-        self.total_reward += sum(rewards)
         # Advance step and check episode completion
         self.current_step += 1
         # Terminate if all fires are extinguished
         terminated = all(fire <= 0 for fire in self.fires_remaining.values())
         truncated = self.current_step >= self.max_steps
+        # Penalize each agent for each step taken
+        for agent_id in range(self.num_agents):
+            # Penalize for each step taken
+            rewards[agent_id] -= 0.3
+            self.agent_rewards[agent_id] -= 0.3
+        # Bonus for extinguishing all fires
+        if terminated:
+            for agent_id in range(self.num_agents):
+                rewards[agent_id] += 25
+                self.agent_rewards[agent_id] += 25
 
+        self.total_reward += sum(rewards)
         # Get observations for all agents
         observations = tuple(self._get_observation(agent_id) for agent_id in range(self.num_agents))
         info = self._get_info()
@@ -251,7 +260,6 @@ class FirefightingEnv(gym.Env):
     def _update_agent_action_space(self, agent_id):
         """Actualiza el espacio de acciones para un agente basado en su posición actual."""
         available_actions = []
-
         # Si está en tránsito, no puede hacer nada
         if self.agent_in_transit[agent_id]:
             self.agent_action_spaces[agent_id]['available'] = []
@@ -260,34 +268,66 @@ class FirefightingEnv(gym.Env):
         # Incendios activos si tiene agua
         if self.agent_water_levels[agent_id] > 0:
             for fire_node in self.fire_actions:
-                # Verificar que el incendio aún existe
-                if fire_node not in self.fires_remaining or self.fires_remaining[fire_node] <= 0:
+                # Verificar que el incendio aún existe o si el agente puede llegar a él
+                if fire_node not in self.fires_remaining or self.fires_remaining[fire_node] <= 0 or self.node_is_reachable(self.agent_positions[agent_id], fire_node, agent_id) is False:
                     continue
-
                 # Verificar si ya hay otro agente dirigiéndose a este incendio
                 agents_targeting_this_fire = [
                     a for a in range(self.num_agents) 
-                    if (self.agent_in_transit[a] and self.final_destinations[a] == fire_node and a != agent_id) or
-                    # Esta línea adicional soluciona el problema de decisiones simultáneas
-                    (a in range(agent_id) and self.agent_positions[a] == self.agent_positions[agent_id] and
-                     not self.agent_in_transit[a] and self.agent_water_levels[a] > self.fires_remaining[fire_node])
+                    if self.agent_in_transit[a] and self.final_destinations[a] == fire_node and a != agent_id
                 ]
-
-                # Calcular agua necesaria y agua en camino
-                water_needed = self.fires_remaining[fire_node]
-                water_on_the_way = sum(
-                    min(self.agent_water_levels[a], water_needed) 
-                    for a in agents_targeting_this_fire
-                )
-
-                # Solo añadir el fuego si se necesita más agua
-                if water_needed > water_on_the_way:
+                if agents_targeting_this_fire:
+                    # Calcular agua necesaria y agua en camino
+                    water_needed = self.fires_remaining[fire_node]
+                    water_on_the_way = sum(
+                        min(self.agent_water_levels[a], water_needed) 
+                        for a in agents_targeting_this_fire
+                    )
+                    # Solo añadir el fuego si se necesita más agua
+                    if water_needed > water_on_the_way:
+                        available_actions.append(fire_node)
+                    else:
+                        # Check if current agent can arrive faster than the slowest agent already headed there
+                        # Create a temporary subgraph for path finding
+                        temp_graph = self.graph.copy()
+                        for u, v, data in list(temp_graph.edges(data=True)):
+                            if not self.can_transit(u, v, agent_id):
+                                temp_graph.remove_edge(u, v)
+                        try:
+                            # Calculate time for current agent to reach fire
+                            path = nx.shortest_path(temp_graph, source=self.agent_positions[agent_id], 
+                                                    target=fire_node, weight='transit_time')
+                            agent_time_to_arrive = sum(self.graph[path[i]][path[i+1]]['transit_time'] 
+                                                      for i in range(len(path)-1))                           
+                            # Find slowest agent already targeting this fire
+                            slowest_time_to_arrive = float('-inf')
+                            for a in agents_targeting_this_fire:
+                                remaining_time = self.agent_transit_time_remaining[a]
+                                if self.final_destinations[a] != self.agent_transit_target[a]:
+                                    agent_graph = self.graph.copy()
+                                    for u, v, data in list(agent_graph.edges(data=True)):
+                                        if not self.can_transit(u, v, a):
+                                            agent_graph.remove_edge(u, v)
+                                    remaining_path = nx.shortest_path(agent_graph, source=self.agent_transit_target[a],
+                                                                     target=self.final_destinations[a], weight='transit_time')
+                                    remaining_time += sum(self.graph[remaining_path[i]][remaining_path[i+1]]['transit_time']
+                                                         for i in range(len(remaining_path)-1))
+                                slowest_time_to_arrive = max(slowest_time_to_arrive, remaining_time)
+                            # If current agent can arrive faster, add the fire node
+                            if agent_time_to_arrive < slowest_time_to_arrive:
+                                available_actions.append(fire_node)
+                        except nx.NetworkXNoPath:
+                            # Current agent can't reach the fire
+                            pass
+                else:
+                    # Si no hay otros agentes, añadir el fuego
                     available_actions.append(fire_node)
                 
         # Añadir tanques si necesita agua
         if self.agent_water_levels[agent_id] < self.vehicle_types[agent_id]['capacity']:
             for tank_node in self.tank_actions:
-                available_actions.append(tank_node)
+                if self.node_is_reachable(self.agent_positions[agent_id], tank_node, agent_id) is True:
+                    available_actions.append(tank_node)
 
         # Actualizar el espacio de acciones del agente
         self.agent_action_spaces[agent_id]['available'] = available_actions
@@ -303,10 +343,113 @@ class FirefightingEnv(gym.Env):
         elif target_node in self.tank_nodes:
             # Lógica para manejar acción en un nodo de tanque
             return self.handle_tank_action(agent_id, target_node)
-        
         # Manejar caso inesperado
         raise ValueError(f"Acción no válida: {action}")
     
+    def add_edge_occupancy(self, source, target, agent):
+        """Set the occupancy of an edge by an agent."""
+        edge = (source, target)
+        reverse_edge = (target, source) # Ocupación de la arista en ambas direcciones
+        self.edge_occupancy[edge].append(agent)
+        self.edge_occupancy[reverse_edge].append(agent)
+    
+    def remove_edge_occupancy(self, source, target, agent):
+        """Remove the occupancy of an edge by an agent."""
+        edge = (source, target)
+        reverse_edge = (target, source)
+        self.edge_occupancy[edge].remove(agent)
+        self.edge_occupancy[reverse_edge].remove(agent)
+    
+    def edge_space_left(self, source, target):
+        """Check if an edge is occupied by any agent."""
+        edge = (source, target)
+        occupancy = sum(self.vehicle_types[agent]['width'] for agent in self.edge_occupancy[edge])
+        space_left = self.graph[source][target]['width'] - occupancy
+        return space_left
+    
+    def can_transit(self, source, target, agent):
+        """Update edge occupancy."""
+        agent_width = self.vehicle_types[agent]['width']
+        if agent_width > self.edge_space_left(source, target):
+            return False
+        return True
+    
+    def node_is_reachable(self, source_node, target_node, agent):
+        """Check if a node is reachable from the agent's current position."""
+        # Create a subgraph with the base edge occupancy where the agent can move
+        subgraph = self.graph.copy()
+        # Remove edges with lower width than the agent's vehicle width
+        for edge_tuple, agents in self.edge_occupancy.items():
+            # Check if the edge exists in the graph before accessing
+            if edge_tuple in self.graph.edges():
+                if self.vehicle_types[agent]['width'] > self.graph[edge_tuple[0]][edge_tuple[1]]['width']:
+                    # Edge is too narrow for this vehicle
+                    if subgraph.has_edge(edge_tuple[0], edge_tuple[1]):
+                        subgraph.remove_edge(edge_tuple[0], edge_tuple[1])
+
+        # Check if the target node is reachable from the source node
+        try:
+            return nx.has_path(subgraph, source=source_node, target=target_node)
+        except nx.NetworkXNoPath:
+            return False
+
+    def update_transit(self, agent, target_node):
+        # Reducir tiempo restante
+        self.agent_transit_time_remaining[agent] -= 1
+        # Si el tránsito ha terminado
+        if self.agent_transit_time_remaining[agent] <= 0:
+            # Eliminar agente de la arista
+            self.remove_edge_occupancy(
+                self.agent_transit_source[agent], 
+                self.agent_transit_target[agent], 
+                agent
+            )
+            # Si el agente llegó a su destino final
+            if self.final_destinations[agent] == target_node:
+                self.agent_positions[agent] = self.agent_transit_target[agent]
+                self.agent_in_transit[agent] = False
+                self.agent_transit_time_remaining[agent] = 0
+                self.agent_transit_source[agent] = None
+                self.agent_transit_target[agent] = None
+                self.final_destinations[agent] = None
+            # Si el agente llegó a un nodo intermedio
+            else:
+                # Actualizar posición del agente
+                self.agent_positions[agent] = self.agent_transit_target[agent]
+                # Si el objetivo no sigue siendo válido
+                if self.final_destinations[agent] in self.fire_nodes:
+                    # Si el incendio fue extinguido, actualizar el espacio de acción
+                    if self.fires_remaining[self.final_destinations[agent]] <= 0:
+                        self.agent_in_transit[agent] = False
+                        self.agent_transit_time_remaining[agent] = 0
+                        self.agent_transit_source[agent] = None
+                        self.agent_transit_target[agent] = None
+                        self.final_destinations[agent] = None
+                        return -20
+                # Actualizar objetivo de tránsito
+                self.agent_transit_source[agent] = self.agent_transit_target[agent]
+                new_target_node = self.final_destinations[agent]
+                # Create a temporary subgraph excluding edges that are too narrow
+                temp_graph = self.graph.copy()
+                for u, v, data in list(temp_graph.edges(data=True)):
+                    # Skip if edge is too narrow for this agent's vehicle
+                    if not self.can_transit(u, v, agent):
+                        temp_graph.remove_edge(u, v)
+                try:
+                    path = nx.shortest_path(temp_graph, source=self.agent_transit_source[agent], target=new_target_node, weight='transit_time')
+                    self.agent_transit_time_remaining[agent] = self.graph[self.agent_transit_source[agent]][path[1]]['transit_time']
+                    self.agent_transit_target[agent] = path[1]
+                    # Actualizar ocupación de aristas
+                    self.add_edge_occupancy(
+                        self.agent_transit_source[agent],
+                        self.agent_transit_target[agent],
+                        agent
+                    )
+                except nx.NetworkXNoPath:
+                    print(f"Agent {agent} cannot reach target node {new_target_node} from {self.agent_transit_source[agent]}")
+                    return -5  # Small penalty for attempting an impossible move
+        return 0
+        
     def move_to_node(self, agent_id, target_node):
         """Move an agent to a target node with transit time."""
         # Si ya está en el nodo destino, no hacer nada
@@ -314,60 +457,33 @@ class FirefightingEnv(gym.Env):
             return 0
         # Si el agente ya está en tránsito, procesar el tiempo restante
         if self.agent_in_transit[agent_id]:
-            # Reducir tiempo restante
-            self.agent_transit_time_remaining[agent_id] -= 1
-            # Si el tránsito ha terminado
-            if self.agent_transit_time_remaining[agent_id] <= 0:
-                # Eliminar agente de la arista
-                current_edge = (self.agent_transit_source[agent_id], self.agent_transit_target[agent_id])
-                if agent_id in self.edge_occupancy[current_edge]:
-                    self.edge_occupancy[current_edge].remove(agent_id)
-
-                # Si el agente llegó a su destino final
-                if self.final_destinations[agent_id] == target_node:
-                    self.agent_positions[agent_id] = self.agent_transit_target[agent_id]
-                    self.agent_in_transit[agent_id] = False
-                    self.agent_transit_time_remaining[agent_id] = 0
-                    self.agent_transit_source[agent_id] = None
-                    self.agent_transit_target[agent_id] = None
-                    self.final_destinations[agent_id] = None
-                # Si el agente llegó a un nodo intermedio
-                else:
-                    # Actualizar posición del agente
-                    self.agent_positions[agent_id] = self.agent_transit_target[agent_id]
-                    # Si el objetivo no sigue siendo válido
-                    if self.final_destinations[agent_id] in self.fire_nodes:
-                        # Si el incendio fue extinguido, actualizar el espacio de acción
-                        if self.fires_remaining[self.final_destinations[agent_id]] <= 0:
-                            self.agent_in_transit[agent_id] = False
-                            self.agent_transit_time_remaining[agent_id] = 0
-                            self.agent_transit_source[agent_id] = None
-                            self.agent_transit_target[agent_id] = None
-                            self.final_destinations[agent_id] = None
-                            return -20
-                    # Actualizar objetivo de tránsito
-                    self.agent_transit_source[agent_id] = self.agent_transit_target[agent_id]
-                    new_target_node = self.final_destinations[agent_id]
-                    path = nx.shortest_path(self.graph, source=self.agent_transit_source[agent_id], target=new_target_node, weight='transit_time')
-                    # Si hay un siguiente nodo en el camino
-                    self.agent_transit_time_remaining[agent_id] = self.graph[self.agent_transit_source[agent_id]][path[1]]['transit_time']
-                    self.agent_transit_target[agent_id] = path[1]
-            return 0 
+            return self.update_transit(agent_id, target_node)
         # Iniciar un nuevo tránsito
-        path = nx.shortest_path(self.graph, source=self.agent_positions[agent_id], target=target_node, weight='transit_time')
-        # Move to the first node in the path
-        self.final_destinations[agent_id] = target_node
-        target_node = path[1] if len(path) > 1 else target_node
         current_node = self.agent_positions[agent_id]
-        transit_time = self.graph[current_node][target_node]['transit_time']
-        # Registrar estado de tránsito
-        self.agent_transit_target[agent_id] = target_node
-        self.agent_transit_source[agent_id] = current_node
-        self.agent_in_transit[agent_id] = True
-        self.agent_transit_time_remaining[agent_id] = transit_time
-        # Actualizar ocupación de aristas
-        edge = (current_node, target_node)
-        self.edge_occupancy[edge].append(agent_id)
+        # Create a temporary subgraph excluding edges that are too narrow
+        temp_graph = self.graph.copy()
+        for u, v, data in list(temp_graph.edges(data=True)):
+            # Skip if edge is too narrow for this agent's vehicle
+            if not self.can_transit(u, v, agent_id):
+                temp_graph.remove_edge(u, v)
+        # Try to find path in the filtered graph
+        try:
+            path = nx.shortest_path(temp_graph, source=current_node, target=target_node, weight='transit_time')
+            # If path exists, proceed with movement
+            self.final_destinations[agent_id] = target_node
+            next_node = path[1] if len(path) > 1 else target_node
+            transit_time = self.graph[current_node][next_node]['transit_time']
+            # Registrar estado de tránsito
+            self.agent_transit_target[agent_id] = next_node
+            self.agent_transit_source[agent_id] = current_node
+            self.agent_in_transit[agent_id] = True
+            self.agent_transit_time_remaining[agent_id] = transit_time
+            # Actualizar ocupación de aristas
+            self.add_edge_occupancy(current_node, next_node, agent_id)
+            return 0
+        except nx.NetworkXNoPath:
+            # No path available with current width constraints
+            return -5  # Small penalty for attempting an impossible move
     
     def handle_fire_action(self, agent_id, fire_node):
         """Handle an agent's action to target a fire node."""
@@ -392,7 +508,7 @@ class FirefightingEnv(gym.Env):
         # Update rewards
         reward = water_used * 0.1  # Reward for water used
         if self.fires_remaining[fire_node] <= 0:
-            reward += 50.0  # Bonus for extinguishing fire
+            reward += 25  # Bonus for extinguishing fire
             self.fires_extinguished += 1
             # Si el incendio fue extinguido, actualizar los espacios de acción de TODOS los agentes
             for aid in range(self.num_agents):
@@ -400,10 +516,6 @@ class FirefightingEnv(gym.Env):
         else:
             # Solo actualizar el espacio de acción del agente actual
             self._update_agent_action_space(agent_id)
-        # Aplicar factor de descuento temporal a la recompensa positiva
-        if reward > 0:
-            time_discount_factor = 1.0 - (self.current_step / self.max_steps)
-            reward = reward * time_discount_factor
 
         return reward
         
