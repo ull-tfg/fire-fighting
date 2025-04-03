@@ -289,10 +289,7 @@ class FirefightingEnv(gym.Env):
                     else:
                         # Check if current agent can arrive faster than the slowest agent already headed there
                         # Create a temporary subgraph for path finding
-                        temp_graph = self.graph.copy()
-                        for u, v, data in list(temp_graph.edges(data=True)):
-                            if not self.can_transit(u, v, agent_id):
-                                temp_graph.remove_edge(u, v)
+                        temp_graph = self.create_subgraph(fire_node, agent_id)
                         try:
                             # Calculate time for current agent to reach fire
                             path = nx.shortest_path(temp_graph, source=self.agent_positions[agent_id], 
@@ -374,24 +371,53 @@ class FirefightingEnv(gym.Env):
             return False
         return True
     
-    def node_is_reachable(self, source_node, target_node, agent):
-        """Check if a node is reachable from the agent's current position."""
+    def create_subgraph(self, target_node, agent):
+        """Create a subgraph for pathfinding."""
         # Create a subgraph with the base edge occupancy where the agent can move
         subgraph = self.graph.copy()
+
+        # Guardar la posición actual del agente para evitar quedar atrapado
+        agent_current_position = self.agent_positions[agent]
+        # Eliminar aristas que conectan incendios activos entre sí
+        active_fire_nodes = [node for node in self.fire_nodes 
+                             if node in self.fires_remaining and self.fires_remaining[node] > 0]
+        for fire_node1 in active_fire_nodes:
+            for fire_node2 in active_fire_nodes:
+                if fire_node1 != fire_node2 and subgraph.has_edge(fire_node1, fire_node2):
+                    subgraph.remove_edge(fire_node1, fire_node2)
+        # Eliminar conexiones de nodos de incendio activo (excepto casos especiales)
+        for fire_node in active_fire_nodes:
+            # Skip the target node (siempre permitir ir hacia el destino)
+            if fire_node == target_node:
+                # Solo mantener conexiones al destino desde nodos no-incendio
+                for neighbor in list(subgraph.neighbors(fire_node)):
+                    if neighbor in active_fire_nodes and neighbor != agent_current_position:
+                        subgraph.remove_edge(fire_node, neighbor)
+                continue
+            # No eliminar conexiones si el agente está actualmente en este nodo
+            if fire_node == agent_current_position:
+                # Permitir salir pero solo hacia nodos que no son incendios
+                for neighbor in list(subgraph.neighbors(fire_node)):
+                    if neighbor in active_fire_nodes and neighbor != target_node:
+                        subgraph.remove_edge(fire_node, neighbor)
+                continue
+            # Eliminar todas las conexiones de este incendio activo
+            for neighbor in list(subgraph.neighbors(fire_node)):
+                if subgraph.has_edge(fire_node, neighbor):
+                    subgraph.remove_edge(fire_node, neighbor)
+
         # Remove edges with lower width than the agent's vehicle width
         for edge_tuple, agents in self.edge_occupancy.items():
-            # Check if the edge exists in the graph before accessing
-            if edge_tuple in self.graph.edges():
-                if self.vehicle_types[agent]['width'] > self.graph[edge_tuple[0]][edge_tuple[1]]['width']:
-                    # Edge is too narrow for this vehicle
-                    if subgraph.has_edge(edge_tuple[0], edge_tuple[1]):
-                        subgraph.remove_edge(edge_tuple[0], edge_tuple[1])
+            if self.vehicle_types[agent]['width'] > self.graph[edge_tuple[0]][edge_tuple[1]]['width']:
+                if subgraph.has_edge(edge_tuple[0], edge_tuple[1]):
+                    subgraph.remove_edge(edge_tuple[0], edge_tuple[1])
 
+        return subgraph
+    
+    def node_is_reachable(self, source_node, target_node, agent):
+        """Check if a node is reachable from the agent's current position."""
         # Check if the target node is reachable from the source node
-        try:
-            return nx.has_path(subgraph, source=source_node, target=target_node)
-        except nx.NetworkXNoPath:
-            return False
+        return nx.has_path(self.create_subgraph(target_node, agent), source=source_node, target=target_node)
 
     def update_transit(self, agent, target_node):
         # Reducir tiempo restante
@@ -430,11 +456,7 @@ class FirefightingEnv(gym.Env):
                 self.agent_transit_source[agent] = self.agent_transit_target[agent]
                 new_target_node = self.final_destinations[agent]
                 # Create a temporary subgraph excluding edges that are too narrow
-                temp_graph = self.graph.copy()
-                for u, v, data in list(temp_graph.edges(data=True)):
-                    # Skip if edge is too narrow for this agent's vehicle
-                    if not self.can_transit(u, v, agent):
-                        temp_graph.remove_edge(u, v)
+                temp_graph = self.create_subgraph(new_target_node, agent)
                 try:
                     path = nx.shortest_path(temp_graph, source=self.agent_transit_source[agent], target=new_target_node, weight='transit_time')
                     self.agent_transit_time_remaining[agent] = self.graph[self.agent_transit_source[agent]][path[1]]['transit_time']
@@ -461,11 +483,7 @@ class FirefightingEnv(gym.Env):
         # Iniciar un nuevo tránsito
         current_node = self.agent_positions[agent_id]
         # Create a temporary subgraph excluding edges that are too narrow
-        temp_graph = self.graph.copy()
-        for u, v, data in list(temp_graph.edges(data=True)):
-            # Skip if edge is too narrow for this agent's vehicle
-            if not self.can_transit(u, v, agent_id):
-                temp_graph.remove_edge(u, v)
+        temp_graph = self.create_subgraph(target_node, agent_id)
         # Try to find path in the filtered graph
         try:
             path = nx.shortest_path(temp_graph, source=current_node, target=target_node, weight='transit_time')

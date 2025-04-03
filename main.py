@@ -308,11 +308,11 @@ def plot_agent_cooperation(metrics, num_agents):
     plt.show()
 
 if __name__ == "__main__":
-    steps = 150  # Maximum steps per episode
+    steps = 200  # Maximum steps per episode
     num_agents = 3  # Number of firefighting agents
     
     # Create environment with a random graph
-    graph = generate_graph(fires=8, tanks=3)
+    graph = generate_graph(fires=18, tanks=4)
     # Visualize the graph
     plt_graph = visualize_graph(graph)
     plt_graph.savefig('environment_graph.png')
@@ -346,7 +346,7 @@ if __name__ == "__main__":
     metrics = train_multi_agent(
         env=env, 
         agents=agents, 
-        num_episodes=1000, 
+        num_episodes=1500, 
         max_steps=steps,
         eval_freq=10, 
         render_training=False
