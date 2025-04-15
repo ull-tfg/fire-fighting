@@ -1,0 +1,122 @@
+{
+    "nodes": {
+        "fires": {
+            "fire_0": {
+                "water_to_extinguish": 50
+            },
+            "fire_1": {
+                "water_to_extinguish": 30
+            },
+            "fire_2": {
+                "water_to_extinguish": 40
+            },
+            "fire_3": {
+                "water_to_extinguish": 50
+            },
+            "fire_4": {
+                "water_to_extinguish": 45
+            }
+        },
+        "depots": {
+            "depot_0": {},
+            "depot_1": {},
+            "depot_2": {}
+        },
+        "starters": {
+            "starter_0": {},
+            "starter_1": {}
+        }
+    },
+    "edges": [
+        {
+            "source": "starter_0",
+            "target": "fire_0",
+            "transit_time": 2,
+            "width": 3
+        },
+        {
+            "source": "starter_0",
+            "target": "depot_0",
+            "transit_time": 1,
+            "width": 5
+        },
+        {
+            "source": "starter_1",
+            "target": "fire_1",
+            "transit_time": 2,
+            "width": 4
+        },
+        {
+            "source": "starter_1",
+            "target": "depot_1",
+            "transit_time": 1,
+            "width": 5
+        },
+        {
+            "source": "fire_0",
+            "target": "fire_1",
+            "transit_time": 3,
+            "width": 2
+        },
+        {
+            "source": "fire_1",
+            "target": "fire_2",
+            "transit_time": 2,
+            "width": 3
+        },
+        {
+            "source": "fire_2",
+            "target": "fire_3",
+            "transit_time": 2,
+            "width": 2
+        },
+        {
+            "source": "fire_3",
+            "target": "fire_4",
+            "transit_time": 2,
+            "width": 3
+        },
+        {
+            "source": "fire_4",
+            "target": "depot_2",
+            "transit_time": 3,
+            "width": 4
+        },
+        {
+            "source": "depot_0",
+            "target": "depot_1",
+            "transit_time": 3,
+            "width": 5
+        },
+        {
+            "source": "depot_1",
+            "target": "depot_2",
+            "transit_time": 4,
+            "width": 5
+        },
+        {
+            "source": "starter_0",
+            "target": "fire_2",
+            "transit_time": 4,
+            "width": 2
+        },
+        {
+            "source": "depot_0",
+            "target": "fire_2",
+            "transit_time": 2,
+            "width": 3
+        },
+        {
+            "source": "depot_1",
+            "target": "fire_3",
+            "transit_time": 3,
+            "width": 3
+        },
+        {
+            "source": "fire_0",
+            "target": "fire_3",
+            "transit_time": 5,
+            "width": 1
+        }
+    ]
+}
