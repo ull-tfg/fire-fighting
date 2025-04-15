@@ -82,7 +82,7 @@ class DQNAgent:
         next_q_values = self.target_net(next_states).max(1)[0]
         target_q = rewards + (1 - dones) * GAMMA * next_q_values
 
-        loss = F.smooth_l1_loss(q_values, target_q.detach())
+        loss = F.huber_loss(q_values, target_q.detach())
         self.optimizer.zero_grad()
         loss.backward()
         torch.nn.utils.clip_grad_norm_(self.policy_net.parameters(), max_norm=1.0)
