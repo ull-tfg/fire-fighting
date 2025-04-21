@@ -1,15 +1,12 @@
 import torch
-import torch.optim as optim
 import numpy as np
-import random
-from collections import deque
 import matplotlib.pyplot as plt
 
 from environment import FirefightingEnv
 from agent import DQNAgent
 from exact_graph import generate_exact_graph, visualize_exact_graph
 
-EPISODES = 1500
+EPISODES = 5000
 rewards_history = []
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

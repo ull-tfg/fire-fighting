@@ -44,14 +44,18 @@ class DQNAgent:
         
         with torch.no_grad():
             state_tensor = torch.tensor(state, dtype=torch.float32).unsqueeze(0).to(device)
-            q_values = self.policy_net(state_tensor).cpu().numpy().flatten()
+            q_values = self.policy_net(state_tensor)
             
             # Handle multi-discrete action space if provided
             if self.action_space is not None:
-                action_indices = np.unravel_index(np.argmax(q_values), self.action_space.nvec)
+                # Encuentra el índice del valor máximo mientras permanece en GPU
+                flat_idx = q_values.view(-1).argmax().item()
+                # Convierte el índice plano a coordenadas multidimensionales
+                action_indices = np.unravel_index(flat_idx, self.action_space.nvec)
                 return np.array(action_indices)
             else:
-                return np.argmax(q_values)
+                # Encuentra directamente el valor máximo en GPU
+                return q_values.argmax().item()
     
     def store_transition(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
@@ -108,4 +112,3 @@ class DQNAgent:
     
     def get_losses(self):
         return self.losses
-    
