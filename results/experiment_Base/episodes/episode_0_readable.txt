@@ -1,0 +1,2412 @@
+=== EPISODIO 0 ===
+
+Paso 0:
+  Posiciones: ['starter_0', 'starter_0', 'starter_0']
+  En tránsito: [False, False, False]
+  Destino final: ['None', 'None', 'None']
+  Próximo destino: ['None', 'None', 'None']
+  Acción seleccionada: [5, 3, 9]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [50, 30, 40, 50, 45]
+  Recompensa: 0
+
+Paso 1:
+  Posiciones: ['starter_0', 'starter_0', 'starter_0']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_0', 'fire_3', 'starter_1']
+  Próximo destino: ['depot_0', 'depot_0', 'depot_0']
+  Acción seleccionada: [0, 2, 2]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [50, 30, 40, 50, 45]
+  Recompensa: -1.0
+
+Paso 2:
+  Posiciones: ['depot_0', 'depot_0', 'depot_0']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'fire_3', 'starter_1']
+  Próximo destino: ['None', 'fire_2', 'depot_1']
+  Acción seleccionada: [4, 5, 7]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [50, 30, 40, 50, 45]
+  Recompensa: 0
+
+Paso 3:
+  Posiciones: ['depot_0', 'depot_0', 'depot_0']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_4', 'fire_3', 'starter_1']
+  Próximo destino: ['fire_2', 'fire_2', 'depot_1']
+  Acción seleccionada: [5, 9, 7]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [50, 30, 40, 50, 45]
+  Recompensa: 0
+
+Paso 4:
+  Posiciones: ['depot_0', 'fire_2', 'depot_0']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_4', 'fire_3', 'starter_1']
+  Próximo destino: ['fire_2', 'fire_3', 'depot_1']
+  Acción seleccionada: [0, 9, 3]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [50, 30, 40, 50, 45]
+  Recompensa: 0
+
+Paso 5:
+  Posiciones: ['fire_2', 'fire_2', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_4', 'fire_3', 'starter_1']
+  Próximo destino: ['fire_3', 'fire_3', 'starter_1']
+  Acción seleccionada: [6, 3, 3]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [50, 30, 40, 50, 45]
+  Recompensa: 5.0
+
+Paso 6:
+  Posiciones: ['fire_2', 'fire_3', 'starter_1']
+  En tránsito: [True, False, False]
+  Destino final: ['fire_4', 'None', 'None']
+  Próximo destino: ['fire_3', 'None', 'None']
+  Acción seleccionada: [4, 2, 0]
+  Niveles de agua: [10, 0, 10]
+  Niveles de fuego: [50, 30, 40, 40, 45]
+  Recompensa: 0
+
+Paso 7:
+  Posiciones: ['fire_3', 'fire_3', 'starter_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_4', 'fire_2', 'fire_0']
+  Próximo destino: ['fire_4', 'fire_2', 'fire_1']
+  Acción seleccionada: [9, 5, 2]
+  Niveles de agua: [10, 0, 10]
+  Niveles de fuego: [50, 30, 40, 40, 45]
+  Recompensa: 0
+
+Paso 8:
+  Posiciones: ['fire_3', 'fire_3', 'starter_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_4', 'fire_2', 'fire_0']
+  Próximo destino: ['fire_4', 'fire_2', 'fire_1']
+  Acción seleccionada: [8, 4, 7]
+  Niveles de agua: [10, 0, 10]
+  Niveles de fuego: [50, 30, 40, 40, 45]
+  Recompensa: 4.0
+
+Paso 9:
+  Posiciones: ['fire_4', 'fire_2', 'fire_1']
+  En tránsito: [False, False, True]
+  Destino final: ['None', 'None', 'fire_0']
+  Próximo destino: ['None', 'None', 'fire_0']
+  Acción seleccionada: [8, 1, 6]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [50, 30, 40, 40, 35]
+  Recompensa: 0
+
+Paso 10:
+  Posiciones: ['fire_4', 'fire_2', 'fire_1']
+  En tránsito: [True, True, True]
+  Destino final: ['starter_0', 'fire_1', 'fire_0']
+  Próximo destino: ['fire_3', 'fire_1', 'fire_0']
+  Acción seleccionada: [3, 7, 0]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [50, 30, 40, 40, 35]
+  Recompensa: 0
+
+Paso 11:
+  Posiciones: ['fire_4', 'fire_2', 'fire_1']
+  En tránsito: [True, True, True]
+  Destino final: ['starter_0', 'fire_1', 'fire_0']
+  Próximo destino: ['fire_3', 'fire_1', 'fire_0']
+  Acción seleccionada: [6, 1, 2]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [50, 30, 40, 40, 35]
+  Recompensa: 4.0
+
+Paso 12:
+  Posiciones: ['fire_3', 'fire_1', 'fire_0']
+  En tránsito: [True, False, False]
+  Destino final: ['starter_0', 'None', 'None']
+  Próximo destino: ['fire_2', 'None', 'None']
+  Acción seleccionada: [8, 0, 6]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 30, 40, 40, 35]
+  Recompensa: 0
+
+Paso 13:
+  Posiciones: ['fire_3', 'fire_1', 'fire_0']
+  En tránsito: [True, True, True]
+  Destino final: ['starter_0', 'fire_0', 'depot_1']
+  Próximo destino: ['fire_2', 'fire_0', 'starter_0']
+  Acción seleccionada: [5, 8, 1]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 30, 40, 40, 35]
+  Recompensa: 0
+
+Paso 14:
+  Posiciones: ['fire_2', 'fire_1', 'fire_0']
+  En tránsito: [True, True, True]
+  Destino final: ['starter_0', 'fire_0', 'depot_1']
+  Próximo destino: ['depot_0', 'fire_0', 'starter_0']
+  Acción seleccionada: [4, 5, 5]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 30, 40, 40, 35]
+  Recompensa: 0
+
+Paso 15:
+  Posiciones: ['fire_2', 'fire_1', 'starter_0']
+  En tránsito: [True, True, True]
+  Destino final: ['starter_0', 'fire_0', 'depot_1']
+  Próximo destino: ['depot_0', 'fire_0', 'depot_0']
+  Acción seleccionada: [8, 1, 5]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 30, 40, 40, 35]
+  Recompensa: -1.0
+
+Paso 16:
+  Posiciones: ['depot_0', 'fire_0', 'depot_0']
+  En tránsito: [True, False, True]
+  Destino final: ['starter_0', 'None', 'depot_1']
+  Próximo destino: ['starter_0', 'None', 'depot_1']
+  Acción seleccionada: [7, 3, 0]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 30, 40, 40, 35]
+  Recompensa: 0
+
+Paso 17:
+  Posiciones: ['starter_0', 'fire_0', 'depot_0']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'fire_3', 'depot_1']
+  Próximo destino: ['None', 'fire_3', 'depot_1']
+  Acción seleccionada: [6, 6, 0]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 30, 40, 40, 35]
+  Recompensa: 0
+
+Paso 18:
+  Posiciones: ['starter_0', 'fire_0', 'depot_0']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_1', 'fire_3', 'depot_1']
+  Próximo destino: ['depot_0', 'fire_3', 'depot_1']
+  Acción seleccionada: [1, 8, 0]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 30, 40, 40, 35]
+  Recompensa: 5.0
+
+Paso 19:
+  Posiciones: ['depot_0', 'fire_0', 'depot_1']
+  En tránsito: [True, True, False]
+  Destino final: ['depot_1', 'fire_3', 'None']
+  Próximo destino: ['depot_1', 'fire_3', 'None']
+  Acción seleccionada: [2, 5, 6]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [40, 30, 40, 40, 35]
+  Recompensa: -1.0
+
+Paso 20:
+  Posiciones: ['depot_0', 'fire_0', 'depot_1']
+  En tránsito: [True, True, False]
+  Destino final: ['depot_1', 'fire_3', 'None']
+  Próximo destino: ['depot_1', 'fire_3', 'None']
+  Acción seleccionada: [7, 4, 1]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [40, 30, 40, 40, 35]
+  Recompensa: 0
+
+Paso 21:
+  Posiciones: ['depot_0', 'fire_0', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_1', 'fire_3', 'fire_1']
+  Próximo destino: ['depot_1', 'fire_3', 'starter_1']
+  Acción seleccionada: [2, 9, 2]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [40, 30, 40, 40, 35]
+  Recompensa: 4.0
+
+Paso 22:
+  Posiciones: ['depot_1', 'fire_3', 'starter_1']
+  En tránsito: [False, False, True]
+  Destino final: ['None', 'None', 'fire_1']
+  Próximo destino: ['None', 'None', 'fire_1']
+  Acción seleccionada: [1, 5, 2]
+  Niveles de agua: [10, 0, 10]
+  Niveles de fuego: [40, 30, 40, 40, 35]
+  Recompensa: 0
+
+Paso 23:
+  Posiciones: ['depot_1', 'fire_3', 'starter_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_1', 'depot_0', 'fire_1']
+  Próximo destino: ['starter_1', 'fire_2', 'fire_1']
+  Acción seleccionada: [0, 8, 2]
+  Niveles de agua: [10, 0, 10]
+  Niveles de fuego: [40, 30, 40, 40, 35]
+  Recompensa: 5.0
+
+Paso 24:
+  Posiciones: ['starter_1', 'fire_3', 'fire_1']
+  En tránsito: [True, True, False]
+  Destino final: ['fire_1', 'depot_0', 'None']
+  Próximo destino: ['fire_1', 'fire_2', 'None']
+  Acción seleccionada: [2, 9, 3]
+  Niveles de agua: [10, 0, 0]
+  Niveles de fuego: [40, 20, 40, 40, 35]
+  Recompensa: 0
+
+Paso 25:
+  Posiciones: ['starter_1', 'fire_2', 'fire_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_1', 'depot_0', 'fire_3']
+  Próximo destino: ['fire_1', 'depot_0', 'fire_2']
+  Acción seleccionada: [2, 2, 6]
+  Niveles de agua: [10, 0, 0]
+  Niveles de fuego: [40, 20, 40, 40, 35]
+  Recompensa: 5.0
+
+Paso 26:
+  Posiciones: ['fire_1', 'fire_2', 'fire_1']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'depot_0', 'fire_3']
+  Próximo destino: ['None', 'depot_0', 'fire_2']
+  Acción seleccionada: [2, 6, 5]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 10, 40, 40, 35]
+  Recompensa: 5.0
+
+Paso 27:
+  Posiciones: ['fire_1', 'depot_0', 'fire_2']
+  En tránsito: [True, False, True]
+  Destino final: ['fire_2', 'None', 'fire_3']
+  Próximo destino: ['fire_2', 'None', 'fire_3']
+  Acción seleccionada: [3, 2, 7]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [40, 10, 40, 40, 35]
+  Recompensa: 0
+
+Paso 28:
+  Posiciones: ['fire_1', 'depot_0', 'fire_2']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_2', 'fire_2', 'fire_3']
+  Próximo destino: ['fire_2', 'fire_2', 'fire_3']
+  Acción seleccionada: [4, 8, 4]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [40, 10, 40, 40, 35]
+  Recompensa: -2.0
+
+Paso 29:
+  Posiciones: ['fire_2', 'depot_0', 'fire_3']
+  En tránsito: [False, True, False]
+  Destino final: ['None', 'fire_2', 'None']
+  Próximo destino: ['None', 'fire_2', 'None']
+  Acción seleccionada: [2, 6, 4]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [40, 10, 40, 40, 35]
+  Recompensa: 4.0
+
+Paso 30:
+  Posiciones: ['fire_2', 'fire_2', 'fire_3']
+  En tránsito: [False, False, True]
+  Destino final: ['None', 'None', 'fire_4']
+  Próximo destino: ['None', 'None', 'fire_4']
+  Acción seleccionada: [3, 0, 5]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 0
+
+Paso 31:
+  Posiciones: ['fire_2', 'fire_2', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_3', 'fire_0', 'fire_4']
+  Próximo destino: ['fire_3', 'fire_1', 'fire_4']
+  Acción seleccionada: [2, 8, 0]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: -1.0
+
+Paso 32:
+  Posiciones: ['fire_2', 'fire_2', 'fire_4']
+  En tránsito: [True, True, False]
+  Destino final: ['fire_3', 'fire_0', 'None']
+  Próximo destino: ['fire_3', 'fire_1', 'None']
+  Acción seleccionada: [2, 0, 9]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: -1.0
+
+Paso 33:
+  Posiciones: ['fire_3', 'fire_1', 'fire_4']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'fire_0', 'starter_1']
+  Próximo destino: ['None', 'fire_0', 'fire_3']
+  Acción seleccionada: [9, 4, 5]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 0
+
+Paso 34:
+  Posiciones: ['fire_3', 'fire_1', 'fire_4']
+  En tránsito: [True, True, True]
+  Destino final: ['starter_1', 'fire_0', 'starter_1']
+  Próximo destino: ['depot_1', 'fire_0', 'fire_3']
+  Acción seleccionada: [4, 4, 7]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 0
+
+Paso 35:
+  Posiciones: ['fire_3', 'fire_1', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['starter_1', 'fire_0', 'starter_1']
+  Próximo destino: ['depot_1', 'fire_0', 'depot_1']
+  Acción seleccionada: [6, 7, 5]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: -1.0
+
+Paso 36:
+  Posiciones: ['fire_3', 'fire_0', 'fire_3']
+  En tránsito: [True, False, True]
+  Destino final: ['starter_1', 'None', 'starter_1']
+  Próximo destino: ['depot_1', 'None', 'depot_1']
+  Acción seleccionada: [1, 3, 5]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 0
+
+Paso 37:
+  Posiciones: ['depot_1', 'fire_0', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['starter_1', 'fire_3', 'starter_1']
+  Próximo destino: ['starter_1', 'fire_3', 'depot_1']
+  Acción seleccionada: [1, 9, 0]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 0
+
+Paso 38:
+  Posiciones: ['starter_1', 'fire_0', 'depot_1']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'fire_3', 'starter_1']
+  Próximo destino: ['None', 'fire_3', 'starter_1']
+  Acción seleccionada: [0, 6, 0]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 0
+
+Paso 39:
+  Posiciones: ['starter_1', 'fire_0', 'starter_1']
+  En tránsito: [True, True, False]
+  Destino final: ['fire_0', 'fire_3', 'None']
+  Próximo destino: ['fire_1', 'fire_3', 'None']
+  Acción seleccionada: [8, 5, 8]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 0
+
+Paso 40:
+  Posiciones: ['starter_1', 'fire_0', 'starter_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_0', 'fire_3', 'starter_0']
+  Próximo destino: ['fire_1', 'fire_3', 'depot_1']
+  Acción seleccionada: [9, 2, 3]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 0
+
+Paso 41:
+  Posiciones: ['fire_1', 'fire_0', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_0', 'fire_3', 'starter_0']
+  Próximo destino: ['fire_0', 'fire_3', 'depot_0']
+  Acción seleccionada: [8, 2, 6]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: -1.0
+
+Paso 42:
+  Posiciones: ['fire_1', 'fire_3', 'depot_1']
+  En tránsito: [True, False, True]
+  Destino final: ['fire_0', 'None', 'starter_0']
+  Próximo destino: ['fire_0', 'None', 'depot_0']
+  Acción seleccionada: [0, 6, 1]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 0
+
+Paso 43:
+  Posiciones: ['fire_1', 'fire_3', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_0', 'depot_1', 'starter_0']
+  Próximo destino: ['fire_0', 'depot_1', 'depot_0']
+  Acción seleccionada: [5, 6, 2]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: -1.0
+
+Paso 44:
+  Posiciones: ['fire_0', 'fire_3', 'depot_0']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'depot_1', 'starter_0']
+  Próximo destino: ['None', 'depot_1', 'starter_0']
+  Acción seleccionada: [0, 5, 1]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: -1.0
+
+Paso 45:
+  Posiciones: ['fire_0', 'fire_3', 'starter_0']
+  En tránsito: [False, True, False]
+  Destino final: ['None', 'depot_1', 'None']
+  Próximo destino: ['None', 'depot_1', 'None']
+  Acción seleccionada: [6, 7, 0]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 5.0
+
+Paso 46:
+  Posiciones: ['fire_0', 'depot_1', 'starter_0']
+  En tránsito: [True, False, True]
+  Destino final: ['depot_1', 'None', 'fire_0']
+  Próximo destino: ['starter_0', 'None', 'fire_0']
+  Acción seleccionada: [1, 9, 9]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 0
+
+Paso 47:
+  Posiciones: ['fire_0', 'depot_1', 'starter_0']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_1', 'starter_1', 'fire_0']
+  Próximo destino: ['starter_0', 'starter_1', 'fire_0']
+  Acción seleccionada: [5, 4, 7]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: -1.0
+
+Paso 48:
+  Posiciones: ['starter_0', 'starter_1', 'fire_0']
+  En tránsito: [True, False, False]
+  Destino final: ['depot_1', 'None', 'None']
+  Próximo destino: ['depot_0', 'None', 'None']
+  Acción seleccionada: [5, 9, 2]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: -0.5
+
+Paso 49:
+  Posiciones: ['depot_0', 'starter_1', 'fire_0']
+  En tránsito: [True, False, True]
+  Destino final: ['depot_1', 'None', 'fire_2']
+  Próximo destino: ['depot_1', 'None', 'fire_1']
+  Acción seleccionada: [3, 8, 8]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 0
+
+Paso 50:
+  Posiciones: ['depot_0', 'starter_1', 'fire_0']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_1', 'starter_0', 'fire_2']
+  Próximo destino: ['depot_1', 'depot_1', 'fire_1']
+  Acción seleccionada: [5, 1, 7]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 0
+
+Paso 51:
+  Posiciones: ['depot_0', 'depot_1', 'fire_0']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_1', 'starter_0', 'fire_2']
+  Próximo destino: ['depot_1', 'depot_0', 'fire_1']
+  Acción seleccionada: [1, 8, 2]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 5.0
+
+Paso 52:
+  Posiciones: ['depot_1', 'depot_1', 'fire_1']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'starter_0', 'fire_2']
+  Próximo destino: ['None', 'depot_0', 'fire_2']
+  Acción seleccionada: [7, 8, 9]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 0
+
+Paso 53:
+  Posiciones: ['depot_1', 'depot_1', 'fire_1']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_2', 'starter_0', 'fire_2']
+  Próximo destino: ['depot_2', 'depot_0', 'fire_2']
+  Acción seleccionada: [6, 7, 9]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: -1.0
+
+Paso 54:
+  Posiciones: ['depot_1', 'depot_0', 'fire_2']
+  En tránsito: [True, True, False]
+  Destino final: ['depot_2', 'starter_0', 'None']
+  Próximo destino: ['depot_2', 'starter_0', 'None']
+  Acción seleccionada: [2, 6, 4]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 0
+
+Paso 55:
+  Posiciones: ['depot_1', 'starter_0', 'fire_2']
+  En tránsito: [True, False, True]
+  Destino final: ['depot_2', 'None', 'fire_4']
+  Próximo destino: ['depot_2', 'None', 'fire_3']
+  Acción seleccionada: [6, 9, 9]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 0
+
+Paso 56:
+  Posiciones: ['depot_1', 'starter_0', 'fire_2']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_2', 'starter_1', 'fire_4']
+  Próximo destino: ['depot_2', 'depot_0', 'fire_3']
+  Acción seleccionada: [7, 9, 0]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: -1.0
+
+Paso 57:
+  Posiciones: ['depot_2', 'depot_0', 'fire_3']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'starter_1', 'fire_4']
+  Próximo destino: ['None', 'depot_1', 'fire_4']
+  Acción seleccionada: [1, 8, 2]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 0
+
+Paso 58:
+  Posiciones: ['depot_2', 'depot_0', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_1', 'starter_1', 'fire_4']
+  Próximo destino: ['depot_1', 'depot_1', 'fire_4']
+  Acción seleccionada: [2, 9, 1]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: -1.0
+
+Paso 59:
+  Posiciones: ['depot_2', 'depot_0', 'fire_4']
+  En tránsito: [True, True, False]
+  Destino final: ['fire_1', 'starter_1', 'None']
+  Próximo destino: ['depot_1', 'depot_1', 'None']
+  Acción seleccionada: [7, 7, 4]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: -1.0
+
+Paso 60:
+  Posiciones: ['depot_2', 'depot_1', 'fire_4']
+  En tránsito: [True, True, False]
+  Destino final: ['fire_1', 'starter_1', 'None']
+  Próximo destino: ['depot_1', 'starter_1', 'None']
+  Acción seleccionada: [7, 1, 4]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: -1.0
+
+Paso 61:
+  Posiciones: ['depot_2', 'starter_1', 'fire_4']
+  En tránsito: [True, False, False]
+  Destino final: ['fire_1', 'None', 'None']
+  Próximo destino: ['depot_1', 'None', 'None']
+  Acción seleccionada: [3, 7, 2]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 0
+
+Paso 62:
+  Posiciones: ['depot_1', 'starter_1', 'fire_4']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_1', 'depot_2', 'fire_2']
+  Próximo destino: ['starter_1', 'depot_1', 'fire_3']
+  Acción seleccionada: [5, 2, 5]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 0
+
+Paso 63:
+  Posiciones: ['starter_1', 'depot_1', 'fire_4']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_1', 'depot_2', 'fire_2']
+  Próximo destino: ['fire_1', 'depot_2', 'fire_3']
+  Acción seleccionada: [3, 1, 7]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 0
+
+Paso 64:
+  Posiciones: ['starter_1', 'depot_1', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_1', 'depot_2', 'fire_2']
+  Próximo destino: ['fire_1', 'depot_2', 'fire_2']
+  Acción seleccionada: [7, 0, 9]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [40, 10, 30, 40, 35]
+  Recompensa: 5.0
+
+Paso 65:
+  Posiciones: ['fire_1', 'depot_1', 'fire_3']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'depot_2', 'fire_2']
+  Próximo destino: ['None', 'depot_2', 'fire_2']
+  Acción seleccionada: [1, 4, 7]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: -2.0
+
+Paso 66:
+  Posiciones: ['fire_1', 'depot_1', 'fire_2']
+  En tránsito: [False, True, False]
+  Destino final: ['None', 'depot_2', 'None']
+  Próximo destino: ['None', 'depot_2', 'None']
+  Acción seleccionada: [0, 7, 7]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: -1.0
+
+Paso 67:
+  Posiciones: ['fire_1', 'depot_2', 'fire_2']
+  En tránsito: [True, False, True]
+  Destino final: ['fire_0', 'None', 'depot_2']
+  Próximo destino: ['fire_0', 'None', 'fire_3']
+  Acción seleccionada: [0, 5, 5]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: 0
+
+Paso 68:
+  Posiciones: ['fire_1', 'depot_2', 'fire_2']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_0', 'depot_0', 'depot_2']
+  Próximo destino: ['fire_0', 'depot_1', 'fire_3']
+  Acción seleccionada: [2, 8, 7]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: 0
+
+Paso 69:
+  Posiciones: ['fire_1', 'depot_2', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_0', 'depot_0', 'depot_2']
+  Próximo destino: ['fire_0', 'depot_1', 'fire_4']
+  Acción seleccionada: [6, 1, 5]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: -1.0
+
+Paso 70:
+  Posiciones: ['fire_0', 'depot_2', 'fire_3']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'depot_0', 'depot_2']
+  Próximo destino: ['None', 'depot_1', 'fire_4']
+  Acción seleccionada: [6, 7, 8]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: 0
+
+Paso 71:
+  Posiciones: ['fire_0', 'depot_2', 'fire_4']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_1', 'depot_0', 'depot_2']
+  Próximo destino: ['starter_0', 'depot_1', 'depot_2']
+  Acción seleccionada: [6, 2, 3]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: 0
+
+Paso 72:
+  Posiciones: ['fire_0', 'depot_1', 'fire_4']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_1', 'depot_0', 'depot_2']
+  Próximo destino: ['starter_0', 'depot_0', 'depot_2']
+  Acción seleccionada: [8, 4, 1]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: 0
+
+Paso 73:
+  Posiciones: ['starter_0', 'depot_1', 'fire_4']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_1', 'depot_0', 'depot_2']
+  Próximo destino: ['depot_0', 'depot_0', 'depot_2']
+  Acción seleccionada: [0, 1, 5]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: 5.0
+
+Paso 74:
+  Posiciones: ['depot_0', 'depot_1', 'depot_2']
+  En tránsito: [True, True, False]
+  Destino final: ['depot_1', 'depot_0', 'None']
+  Próximo destino: ['depot_1', 'depot_0', 'None']
+  Acción seleccionada: [3, 1, 1]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: -1.0
+
+Paso 75:
+  Posiciones: ['depot_0', 'depot_0', 'depot_2']
+  En tránsito: [True, False, True]
+  Destino final: ['depot_1', 'None', 'fire_1']
+  Próximo destino: ['depot_1', 'None', 'depot_1']
+  Acción seleccionada: [9, 9, 3]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: 0
+
+Paso 76:
+  Posiciones: ['depot_0', 'depot_0', 'depot_2']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_1', 'starter_1', 'fire_1']
+  Próximo destino: ['depot_1', 'depot_1', 'depot_1']
+  Acción seleccionada: [4, 3, 9]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: 5.0
+
+Paso 77:
+  Posiciones: ['depot_1', 'depot_0', 'depot_2']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'starter_1', 'fire_1']
+  Próximo destino: ['None', 'depot_1', 'depot_1']
+  Acción seleccionada: [1, 7, 6]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: 0
+
+Paso 78:
+  Posiciones: ['depot_1', 'depot_0', 'depot_2']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_1', 'starter_1', 'fire_1']
+  Próximo destino: ['starter_1', 'depot_1', 'depot_1']
+  Acción seleccionada: [4, 9, 6]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: -2.0
+
+Paso 79:
+  Posiciones: ['starter_1', 'depot_1', 'depot_1']
+  En tránsito: [True, True, False]
+  Destino final: ['fire_4', 'starter_1', 'None']
+  Próximo destino: ['depot_1', 'starter_1', 'None']
+  Acción seleccionada: [6, 2, 8]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: 0
+
+Paso 80:
+  Posiciones: ['depot_1', 'starter_1', 'depot_1']
+  En tránsito: [True, False, True]
+  Destino final: ['fire_4', 'None', 'starter_0']
+  Próximo destino: ['fire_3', 'None', 'depot_0']
+  Acción seleccionada: [7, 6, 9]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: 0
+
+Paso 81:
+  Posiciones: ['depot_1', 'starter_1', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_4', 'depot_1', 'starter_0']
+  Próximo destino: ['fire_3', 'depot_1', 'depot_0']
+  Acción seleccionada: [8, 4, 4]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: -1.0
+
+Paso 82:
+  Posiciones: ['depot_1', 'depot_1', 'depot_1']
+  En tránsito: [True, False, True]
+  Destino final: ['fire_4', 'None', 'starter_0']
+  Próximo destino: ['fire_3', 'None', 'depot_0']
+  Acción seleccionada: [5, 4, 9]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: 0
+
+Paso 83:
+  Posiciones: ['fire_3', 'depot_1', 'depot_0']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_4', 'fire_4', 'starter_0']
+  Próximo destino: ['fire_4', 'fire_3', 'starter_0']
+  Acción seleccionada: [0, 6, 9]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: 0
+
+Paso 84:
+  Posiciones: ['fire_3', 'depot_1', 'starter_0']
+  En tránsito: [True, True, False]
+  Destino final: ['fire_4', 'fire_4', 'None']
+  Próximo destino: ['fire_4', 'fire_3', 'None']
+  Acción seleccionada: [4, 8, 9]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [40, 0, 30, 40, 35]
+  Recompensa: 5.0
+
+Paso 85:
+  Posiciones: ['fire_4', 'depot_1', 'starter_0']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'fire_4', 'starter_1']
+  Próximo destino: ['None', 'fire_3', 'depot_0']
+  Acción seleccionada: [9, 4, 7]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [40, 0, 30, 40, 25]
+  Recompensa: 0
+
+Paso 86:
+  Posiciones: ['fire_4', 'fire_3', 'depot_0']
+  En tránsito: [True, True, True]
+  Destino final: ['starter_1', 'fire_4', 'starter_1']
+  Próximo destino: ['fire_3', 'fire_4', 'depot_1']
+  Acción seleccionada: [2, 0, 0]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [40, 0, 30, 40, 25]
+  Recompensa: 0
+
+Paso 87:
+  Posiciones: ['fire_4', 'fire_3', 'depot_0']
+  En tránsito: [True, True, True]
+  Destino final: ['starter_1', 'fire_4', 'starter_1']
+  Próximo destino: ['fire_3', 'fire_4', 'depot_1']
+  Acción seleccionada: [6, 2, 7]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [40, 0, 30, 40, 25]
+  Recompensa: 5.0
+
+Paso 88:
+  Posiciones: ['fire_3', 'fire_4', 'depot_0']
+  En tránsito: [True, False, True]
+  Destino final: ['starter_1', 'None', 'starter_1']
+  Próximo destino: ['depot_1', 'None', 'depot_1']
+  Acción seleccionada: [3, 4, 0]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [40, 0, 30, 40, 15]
+  Recompensa: -1.0
+
+Paso 89:
+  Posiciones: ['fire_3', 'fire_4', 'depot_1']
+  En tránsito: [True, False, True]
+  Destino final: ['starter_1', 'None', 'starter_1']
+  Próximo destino: ['depot_1', 'None', 'starter_1']
+  Acción seleccionada: [9, 3, 2]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [40, 0, 30, 40, 15]
+  Recompensa: 0
+
+Paso 90:
+  Posiciones: ['fire_3', 'fire_4', 'starter_1']
+  En tránsito: [True, True, False]
+  Destino final: ['starter_1', 'fire_3', 'None']
+  Próximo destino: ['depot_1', 'fire_3', 'None']
+  Acción seleccionada: [4, 8, 5]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [40, 0, 30, 40, 15]
+  Recompensa: 0
+
+Paso 91:
+  Posiciones: ['depot_1', 'fire_4', 'starter_1']
+  En tránsito: [True, True, True]
+  Destino final: ['starter_1', 'fire_3', 'depot_0']
+  Próximo destino: ['starter_1', 'fire_3', 'depot_1']
+  Acción seleccionada: [8, 1, 0]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [40, 0, 30, 40, 15]
+  Recompensa: -1.0
+
+Paso 92:
+  Posiciones: ['starter_1', 'fire_3', 'depot_1']
+  En tránsito: [False, False, True]
+  Destino final: ['None', 'None', 'depot_0']
+  Próximo destino: ['None', 'None', 'depot_0']
+  Acción seleccionada: [1, 1, 0]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [40, 0, 30, 40, 15]
+  Recompensa: 0
+
+Paso 93:
+  Posiciones: ['starter_1', 'fire_3', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_1', 'fire_1', 'depot_0']
+  Próximo destino: ['fire_1', 'fire_2', 'depot_0']
+  Acción seleccionada: [8, 1, 4]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [40, 0, 30, 40, 15]
+  Recompensa: 0
+
+Paso 94:
+  Posiciones: ['starter_1', 'fire_3', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_1', 'fire_1', 'depot_0']
+  Próximo destino: ['fire_1', 'fire_2', 'depot_0']
+  Acción seleccionada: [3, 0, 8]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [40, 0, 30, 40, 15]
+  Recompensa: -1.5
+
+Paso 95:
+  Posiciones: ['fire_1', 'fire_2', 'depot_0']
+  En tránsito: [False, True, False]
+  Destino final: ['None', 'fire_0', 'None']
+  Próximo destino: ['None', 'fire_1', 'None']
+  Acción seleccionada: [3, 9, 3]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [40, 0, 30, 40, 15]
+  Recompensa: 0
+
+Paso 96:
+  Posiciones: ['fire_1', 'fire_2', 'depot_0']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_3', 'fire_0', 'fire_3']
+  Próximo destino: ['fire_2', 'fire_1', 'fire_2']
+  Acción seleccionada: [7, 5, 1]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [40, 0, 30, 40, 15]
+  Recompensa: 0
+
+Paso 97:
+  Posiciones: ['fire_1', 'fire_1', 'depot_0']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_3', 'fire_0', 'fire_3']
+  Próximo destino: ['fire_2', 'fire_0', 'fire_2']
+  Acción seleccionada: [9, 3, 4]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [40, 0, 30, 40, 15]
+  Recompensa: 0
+
+Paso 98:
+  Posiciones: ['fire_2', 'fire_1', 'fire_2']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_3', 'fire_0', 'fire_3']
+  Próximo destino: ['fire_3', 'fire_0', 'fire_3']
+  Acción seleccionada: [6, 6, 3]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [40, 0, 30, 40, 15]
+  Recompensa: 0
+
+Paso 99:
+  Posiciones: ['fire_2', 'fire_1', 'fire_2']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_3', 'fire_0', 'fire_3']
+  Próximo destino: ['fire_3', 'fire_0', 'fire_3']
+  Acción seleccionada: [2, 9, 0]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [40, 0, 30, 40, 15]
+  Recompensa: 3.0
+
+Paso 100:
+  Posiciones: ['fire_3', 'fire_0', 'fire_3']
+  En tránsito: [False, False, False]
+  Destino final: ['None', 'None', 'None']
+  Próximo destino: ['None', 'None', 'None']
+  Acción seleccionada: [5, 5, 3]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 0, 30, 30, 15]
+  Recompensa: -1.0
+
+Paso 101:
+  Posiciones: ['fire_3', 'fire_0', 'fire_3']
+  En tránsito: [True, True, False]
+  Destino final: ['depot_0', 'depot_0', 'None']
+  Próximo destino: ['fire_2', 'starter_0', 'None']
+  Acción seleccionada: [3, 8, 4]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 0, 30, 30, 15]
+  Recompensa: 0
+
+Paso 102:
+  Posiciones: ['fire_3', 'fire_0', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_0', 'depot_0', 'fire_4']
+  Próximo destino: ['fire_2', 'starter_0', 'fire_4']
+  Acción seleccionada: [8, 8, 6]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 0, 30, 30, 15]
+  Recompensa: 0
+
+Paso 103:
+  Posiciones: ['fire_2', 'starter_0', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_0', 'depot_0', 'fire_4']
+  Próximo destino: ['depot_0', 'depot_0', 'fire_4']
+  Acción seleccionada: [3, 7, 1]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [40, 0, 30, 30, 15]
+  Recompensa: 4.0
+
+Paso 104:
+  Posiciones: ['fire_2', 'depot_0', 'fire_4']
+  En tránsito: [True, False, False]
+  Destino final: ['depot_0', 'None', 'None']
+  Próximo destino: ['depot_0', 'None', 'None']
+  Acción seleccionada: [9, 8, 4]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [40, 0, 30, 30, 15]
+  Recompensa: 4.0
+
+Paso 105:
+  Posiciones: ['depot_0', 'depot_0', 'fire_4']
+  En tránsito: [False, True, False]
+  Destino final: ['None', 'starter_0', 'None']
+  Próximo destino: ['None', 'starter_0', 'None']
+  Acción seleccionada: [8, 7, 7]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [40, 0, 30, 30, 15]
+  Recompensa: 0
+
+Paso 106:
+  Posiciones: ['depot_0', 'starter_0', 'fire_4']
+  En tránsito: [True, False, True]
+  Destino final: ['starter_0', 'None', 'depot_2']
+  Próximo destino: ['starter_0', 'None', 'depot_2']
+  Acción seleccionada: [6, 0, 2]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [40, 0, 30, 30, 15]
+  Recompensa: 0
+
+Paso 107:
+  Posiciones: ['starter_0', 'starter_0', 'fire_4']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'fire_0', 'depot_2']
+  Próximo destino: ['None', 'fire_0', 'depot_2']
+  Acción seleccionada: [2, 8, 5]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [40, 0, 30, 30, 15]
+  Recompensa: 0
+
+Paso 108:
+  Posiciones: ['starter_0', 'starter_0', 'fire_4']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_2', 'fire_0', 'depot_2']
+  Próximo destino: ['depot_0', 'fire_0', 'depot_2']
+  Acción seleccionada: [6, 8, 2]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [40, 0, 30, 30, 15]
+  Recompensa: 10.0
+
+Paso 109:
+  Posiciones: ['depot_0', 'fire_0', 'depot_2']
+  En tránsito: [True, False, False]
+  Destino final: ['fire_2', 'None', 'None']
+  Próximo destino: ['fire_2', 'None', 'None']
+  Acción seleccionada: [1, 1, 7]
+  Niveles de agua: [10, 0, 10]
+  Niveles de fuego: [30, 0, 30, 30, 15]
+  Recompensa: -1.0
+
+Paso 110:
+  Posiciones: ['depot_0', 'fire_0', 'depot_2']
+  En tránsito: [True, True, False]
+  Destino final: ['fire_2', 'fire_1', 'None']
+  Próximo destino: ['fire_2', 'fire_1', 'None']
+  Acción seleccionada: [8, 0, 1]
+  Niveles de agua: [10, 0, 10]
+  Niveles de fuego: [30, 0, 30, 30, 15]
+  Recompensa: 5.0
+
+Paso 111:
+  Posiciones: ['fire_2', 'fire_0', 'depot_2']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'fire_1', 'fire_1']
+  Próximo destino: ['None', 'fire_1', 'depot_1']
+  Acción seleccionada: [4, 4, 1]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [30, 0, 20, 30, 15]
+  Recompensa: 0
+
+Paso 112:
+  Posiciones: ['fire_2', 'fire_0', 'depot_2']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_4', 'fire_1', 'fire_1']
+  Próximo destino: ['fire_3', 'fire_1', 'depot_1']
+  Acción seleccionada: [1, 7, 7]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [30, 0, 20, 30, 15]
+  Recompensa: 0
+
+Paso 113:
+  Posiciones: ['fire_2', 'fire_1', 'depot_2']
+  En tránsito: [True, False, True]
+  Destino final: ['fire_4', 'None', 'fire_1']
+  Próximo destino: ['fire_3', 'None', 'depot_1']
+  Acción seleccionada: [4, 4, 2]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [30, 0, 20, 30, 15]
+  Recompensa: 0
+
+Paso 114:
+  Posiciones: ['fire_3', 'fire_1', 'depot_2']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_4', 'fire_4', 'fire_1']
+  Próximo destino: ['fire_4', 'fire_2', 'depot_1']
+  Acción seleccionada: [8, 9, 9]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [30, 0, 20, 30, 15]
+  Recompensa: -0.5
+
+Paso 115:
+  Posiciones: ['fire_3', 'fire_1', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_4', 'fire_4', 'starter_1']
+  Próximo destino: ['fire_4', 'fire_2', 'starter_1']
+  Acción seleccionada: [8, 8, 4]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [30, 0, 20, 30, 15]
+  Recompensa: -1.0
+
+Paso 116:
+  Posiciones: ['fire_4', 'fire_2', 'starter_1']
+  En tránsito: [False, True, False]
+  Destino final: ['None', 'fire_4', 'None']
+  Próximo destino: ['None', 'fire_3', 'None']
+  Acción seleccionada: [3, 9, 0]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [30, 0, 20, 30, 15]
+  Recompensa: 0
+
+Paso 117:
+  Posiciones: ['fire_4', 'fire_2', 'starter_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_3', 'fire_4', 'fire_0']
+  Próximo destino: ['fire_3', 'fire_3', 'fire_1']
+  Acción seleccionada: [9, 2, 6]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [30, 0, 20, 30, 15]
+  Recompensa: 0
+
+Paso 118:
+  Posiciones: ['fire_4', 'fire_3', 'starter_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_3', 'fire_4', 'fire_0']
+  Próximo destino: ['fire_3', 'fire_4', 'fire_1']
+  Acción seleccionada: [0, 6, 4]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [30, 0, 20, 30, 15]
+  Recompensa: -1.0
+
+Paso 119:
+  Posiciones: ['fire_3', 'fire_3', 'fire_1']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'fire_4', 'fire_0']
+  Próximo destino: ['None', 'fire_4', 'fire_0']
+  Acción seleccionada: [4, 9, 8]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [30, 0, 20, 30, 15]
+  Recompensa: -1.0
+
+Paso 120:
+  Posiciones: ['fire_3', 'fire_4', 'fire_1']
+  En tránsito: [True, False, True]
+  Destino final: ['fire_4', 'None', 'fire_0']
+  Próximo destino: ['fire_4', 'None', 'fire_0']
+  Acción seleccionada: [8, 5, 9]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [30, 0, 20, 30, 15]
+  Recompensa: 0
+
+Paso 121:
+  Posiciones: ['fire_3', 'fire_4', 'fire_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_4', 'depot_0', 'fire_0']
+  Próximo destino: ['fire_4', 'fire_3', 'fire_0']
+  Acción seleccionada: [9, 2, 1]
+  Niveles de agua: [0, 0, 10]
+  Niveles de fuego: [30, 0, 20, 30, 15]
+  Recompensa: 4.0
+
+Paso 122:
+  Posiciones: ['fire_4', 'fire_4', 'fire_0']
+  En tránsito: [False, True, False]
+  Destino final: ['None', 'depot_0', 'None']
+  Próximo destino: ['None', 'fire_3', 'None']
+  Acción seleccionada: [3, 7, 4]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [20, 0, 20, 30, 15]
+  Recompensa: 0
+
+Paso 123:
+  Posiciones: ['fire_4', 'fire_3', 'fire_0']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_3', 'depot_0', 'fire_4']
+  Próximo destino: ['fire_3', 'fire_2', 'fire_3']
+  Acción seleccionada: [8, 9, 7]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [20, 0, 20, 30, 15]
+  Recompensa: 0
+
+Paso 124:
+  Posiciones: ['fire_4', 'fire_3', 'fire_0']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_3', 'depot_0', 'fire_4']
+  Próximo destino: ['fire_3', 'fire_2', 'fire_3']
+  Acción seleccionada: [4, 2, 8]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [20, 0, 20, 30, 15]
+  Recompensa: -1.0
+
+Paso 125:
+  Posiciones: ['fire_3', 'fire_2', 'fire_0']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'depot_0', 'fire_4']
+  Próximo destino: ['None', 'depot_0', 'fire_3']
+  Acción seleccionada: [5, 4, 9]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [20, 0, 20, 30, 15]
+  Recompensa: 0
+
+Paso 126:
+  Posiciones: ['fire_3', 'fire_2', 'fire_0']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_0', 'depot_0', 'fire_4']
+  Próximo destino: ['fire_2', 'depot_0', 'fire_3']
+  Acción seleccionada: [5, 3, 0]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [20, 0, 20, 30, 15]
+  Recompensa: 5.0
+
+Paso 127:
+  Posiciones: ['fire_3', 'depot_0', 'fire_0']
+  En tránsito: [True, False, True]
+  Destino final: ['depot_0', 'None', 'fire_4']
+  Próximo destino: ['fire_2', 'None', 'fire_3']
+  Acción seleccionada: [7, 3, 3]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [20, 0, 20, 30, 15]
+  Recompensa: 0
+
+Paso 128:
+  Posiciones: ['fire_2', 'depot_0', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_0', 'fire_3', 'fire_4']
+  Próximo destino: ['depot_0', 'fire_2', 'fire_4']
+  Acción seleccionada: [6, 0, 6]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [20, 0, 20, 30, 15]
+  Recompensa: 0
+
+Paso 129:
+  Posiciones: ['fire_2', 'depot_0', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_0', 'fire_3', 'fire_4']
+  Próximo destino: ['depot_0', 'fire_2', 'fire_4']
+  Acción seleccionada: [9, 8, 0]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [20, 0, 20, 30, 15]
+  Recompensa: 4.0
+
+Paso 130:
+  Posiciones: ['depot_0', 'fire_2', 'fire_4']
+  En tránsito: [False, True, False]
+  Destino final: ['None', 'fire_3', 'None']
+  Próximo destino: ['None', 'fire_3', 'None']
+  Acción seleccionada: [6, 2, 4]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [20, 0, 20, 30, 15]
+  Recompensa: -1.0
+
+Paso 131:
+  Posiciones: ['depot_0', 'fire_2', 'fire_4']
+  En tránsito: [True, True, False]
+  Destino final: ['depot_1', 'fire_3', 'None']
+  Próximo destino: ['depot_1', 'fire_3', 'None']
+  Acción seleccionada: [1, 0, 0]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [20, 0, 20, 30, 15]
+  Recompensa: 5.0
+
+Paso 132:
+  Posiciones: ['depot_0', 'fire_3', 'fire_4']
+  En tránsito: [True, False, True]
+  Destino final: ['depot_1', 'None', 'fire_0']
+  Próximo destino: ['depot_1', 'None', 'fire_3']
+  Acción seleccionada: [9, 0, 2]
+  Niveles de agua: [10, 0, 0]
+  Niveles de fuego: [20, 0, 20, 20, 15]
+  Recompensa: 0
+
+Paso 133:
+  Posiciones: ['depot_0', 'fire_3', 'fire_4']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_1', 'fire_0', 'fire_0']
+  Próximo destino: ['depot_1', 'fire_0', 'fire_3']
+  Acción seleccionada: [5, 0, 1]
+  Niveles de agua: [10, 0, 0]
+  Niveles de fuego: [20, 0, 20, 20, 15]
+  Recompensa: -1.0
+
+Paso 134:
+  Posiciones: ['depot_1', 'fire_3', 'fire_3']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'fire_0', 'fire_0']
+  Próximo destino: ['None', 'fire_0', 'fire_0']
+  Acción seleccionada: [4, 6, 5]
+  Niveles de agua: [10, 0, 0]
+  Niveles de fuego: [20, 0, 20, 20, 15]
+  Recompensa: 0
+
+Paso 135:
+  Posiciones: ['depot_1', 'fire_3', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_4', 'fire_0', 'fire_0']
+  Próximo destino: ['fire_3', 'fire_0', 'fire_0']
+  Acción seleccionada: [3, 1, 9]
+  Niveles de agua: [10, 0, 0]
+  Niveles de fuego: [20, 0, 20, 20, 15]
+  Recompensa: 0
+
+Paso 136:
+  Posiciones: ['depot_1', 'fire_3', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_4', 'fire_0', 'fire_0']
+  Próximo destino: ['fire_3', 'fire_0', 'fire_0']
+  Acción seleccionada: [1, 9, 7]
+  Niveles de agua: [10, 0, 0]
+  Niveles de fuego: [20, 0, 20, 20, 15]
+  Recompensa: 0
+
+Paso 137:
+  Posiciones: ['depot_1', 'fire_3', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_4', 'fire_0', 'fire_0']
+  Próximo destino: ['fire_3', 'fire_0', 'fire_0']
+  Acción seleccionada: [4, 9, 1]
+  Niveles de agua: [10, 0, 0]
+  Niveles de fuego: [20, 0, 20, 20, 15]
+  Recompensa: -1.0
+
+Paso 138:
+  Posiciones: ['fire_3', 'fire_0', 'fire_3']
+  En tránsito: [True, False, True]
+  Destino final: ['fire_4', 'None', 'fire_0']
+  Próximo destino: ['fire_4', 'None', 'fire_0']
+  Acción seleccionada: [0, 0, 3]
+  Niveles de agua: [10, 0, 0]
+  Niveles de fuego: [20, 0, 20, 20, 15]
+  Recompensa: -2.0
+
+Paso 139:
+  Posiciones: ['fire_3', 'fire_0', 'fire_0']
+  En tránsito: [True, False, False]
+  Destino final: ['fire_4', 'None', 'None']
+  Próximo destino: ['fire_4', 'None', 'None']
+  Acción seleccionada: [0, 4, 4]
+  Niveles de agua: [10, 0, 0]
+  Niveles de fuego: [20, 0, 20, 20, 15]
+  Recompensa: 5.0
+
+Paso 140:
+  Posiciones: ['fire_4', 'fire_0', 'fire_0']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'fire_4', 'fire_4']
+  Próximo destino: ['None', 'fire_3', 'fire_3']
+  Acción seleccionada: [2, 3, 0]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [20, 0, 20, 20, 5]
+  Recompensa: 0
+
+Paso 141:
+  Posiciones: ['fire_4', 'fire_0', 'fire_0']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_2', 'fire_4', 'fire_4']
+  Próximo destino: ['fire_3', 'fire_3', 'fire_3']
+  Acción seleccionada: [3, 3, 7]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [20, 0, 20, 20, 5]
+  Recompensa: 0
+
+Paso 142:
+  Posiciones: ['fire_4', 'fire_0', 'fire_0']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_2', 'fire_4', 'fire_4']
+  Próximo destino: ['fire_3', 'fire_3', 'fire_3']
+  Acción seleccionada: [1, 1, 2]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [20, 0, 20, 20, 5]
+  Recompensa: 0
+
+Paso 143:
+  Posiciones: ['fire_3', 'fire_0', 'fire_0']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_2', 'fire_4', 'fire_4']
+  Próximo destino: ['fire_2', 'fire_3', 'fire_3']
+  Acción seleccionada: [4, 0, 7]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [20, 0, 20, 20, 5]
+  Recompensa: 0
+
+Paso 144:
+  Posiciones: ['fire_3', 'fire_0', 'fire_0']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_2', 'fire_4', 'fire_4']
+  Próximo destino: ['fire_2', 'fire_3', 'fire_3']
+  Acción seleccionada: [5, 7, 2]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [20, 0, 20, 20, 5]
+  Recompensa: -1.0
+
+Paso 145:
+  Posiciones: ['fire_2', 'fire_3', 'fire_3']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'fire_4', 'fire_4']
+  Próximo destino: ['None', 'fire_4', 'fire_4']
+  Acción seleccionada: [6, 4, 4]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [20, 0, 20, 20, 5]
+  Recompensa: 0
+
+Paso 146:
+  Posiciones: ['fire_2', 'fire_3', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_1', 'fire_4', 'fire_4']
+  Próximo destino: ['depot_0', 'fire_4', 'fire_4']
+  Acción seleccionada: [1, 8, 3]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [20, 0, 20, 20, 5]
+  Recompensa: -2.0
+
+Paso 147:
+  Posiciones: ['fire_2', 'fire_4', 'fire_4']
+  En tránsito: [True, False, False]
+  Destino final: ['depot_1', 'None', 'None']
+  Próximo destino: ['depot_0', 'None', 'None']
+  Acción seleccionada: [6, 7, 9]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [20, 0, 20, 20, 5]
+  Recompensa: 0
+
+Paso 148:
+  Posiciones: ['depot_0', 'fire_4', 'fire_4']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_1', 'depot_2', 'starter_1']
+  Próximo destino: ['depot_1', 'depot_2', 'fire_3']
+  Acción seleccionada: [4, 2, 2]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [20, 0, 20, 20, 5]
+  Recompensa: 0
+
+Paso 149:
+  Posiciones: ['depot_0', 'fire_4', 'fire_4']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_1', 'depot_2', 'starter_1']
+  Próximo destino: ['depot_1', 'depot_2', 'fire_3']
+  Acción seleccionada: [8, 3, 1]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [20, 0, 20, 20, 5]
+  Recompensa: 0
+
+Paso 150:
+  Posiciones: ['depot_0', 'fire_4', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_1', 'depot_2', 'starter_1']
+  Próximo destino: ['depot_1', 'depot_2', 'depot_1']
+  Acción seleccionada: [2, 2, 0]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [20, 0, 20, 20, 5]
+  Recompensa: 10.0
+
+Paso 151:
+  Posiciones: ['depot_1', 'depot_2', 'fire_3']
+  En tránsito: [False, False, True]
+  Destino final: ['None', 'None', 'starter_1']
+  Próximo destino: ['None', 'None', 'depot_1']
+  Acción seleccionada: [0, 9, 7]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [20, 0, 20, 20, 5]
+  Recompensa: 0
+
+Paso 152:
+  Posiciones: ['depot_1', 'depot_2', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_0', 'starter_1', 'starter_1']
+  Próximo destino: ['starter_1', 'depot_1', 'depot_1']
+  Acción seleccionada: [4, 9, 0]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [20, 0, 20, 20, 5]
+  Recompensa: 0
+
+Paso 153:
+  Posiciones: ['starter_1', 'depot_2', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_0', 'starter_1', 'starter_1']
+  Próximo destino: ['fire_1', 'depot_1', 'starter_1']
+  Acción seleccionada: [7, 5, 1]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [20, 0, 20, 20, 5]
+  Recompensa: 0
+
+Paso 154:
+  Posiciones: ['starter_1', 'depot_2', 'starter_1']
+  En tránsito: [True, True, False]
+  Destino final: ['fire_0', 'starter_1', 'None']
+  Próximo destino: ['fire_1', 'depot_1', 'None']
+  Acción seleccionada: [6, 7, 6]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [20, 0, 20, 20, 5]
+  Recompensa: 0
+
+Paso 155:
+  Posiciones: ['fire_1', 'depot_2', 'starter_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_0', 'starter_1', 'depot_1']
+  Próximo destino: ['fire_0', 'depot_1', 'depot_1']
+  Acción seleccionada: [1, 7, 8]
+  Niveles de agua: [10, 10, 0]
+  Niveles de fuego: [20, 0, 20, 20, 5]
+  Recompensa: 5.0
+
+Paso 156:
+  Posiciones: ['fire_1', 'depot_1', 'depot_1']
+  En tránsito: [True, True, False]
+  Destino final: ['fire_0', 'starter_1', 'None']
+  Próximo destino: ['fire_0', 'starter_1', 'None']
+  Acción seleccionada: [1, 6, 6]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [20, 0, 20, 20, 5]
+  Recompensa: -1.0
+
+Paso 157:
+  Posiciones: ['fire_1', 'starter_1', 'depot_1']
+  En tránsito: [True, False, False]
+  Destino final: ['fire_0', 'None', 'None']
+  Próximo destino: ['fire_0', 'None', 'None']
+  Acción seleccionada: [9, 0, 3]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [20, 0, 20, 20, 5]
+  Recompensa: 5.0
+
+Paso 158:
+  Posiciones: ['fire_0', 'starter_1', 'depot_1']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'fire_0', 'fire_3']
+  Próximo destino: ['None', 'fire_1', 'fire_3']
+  Acción seleccionada: [2, 1, 7]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [10, 0, 20, 20, 5]
+  Recompensa: 0
+
+Paso 159:
+  Posiciones: ['fire_0', 'starter_1', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_2', 'fire_0', 'fire_3']
+  Próximo destino: ['fire_1', 'fire_1', 'fire_3']
+  Acción seleccionada: [3, 7, 7]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [10, 0, 20, 20, 5]
+  Recompensa: 0
+
+Paso 160:
+  Posiciones: ['fire_0', 'fire_1', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_2', 'fire_0', 'fire_3']
+  Próximo destino: ['fire_1', 'fire_0', 'fire_3']
+  Acción seleccionada: [3, 6, 2]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [10, 0, 20, 20, 5]
+  Recompensa: 5.0
+
+Paso 161:
+  Posiciones: ['fire_0', 'fire_1', 'fire_3']
+  En tránsito: [True, True, False]
+  Destino final: ['fire_2', 'fire_0', 'None']
+  Próximo destino: ['fire_1', 'fire_0', 'None']
+  Acción seleccionada: [6, 5, 2]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [10, 0, 20, 10, 5]
+  Recompensa: 0
+
+Paso 162:
+  Posiciones: ['fire_1', 'fire_1', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_2', 'fire_0', 'fire_2']
+  Próximo destino: ['fire_2', 'fire_0', 'fire_2']
+  Acción seleccionada: [3, 4, 4]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [10, 0, 20, 10, 5]
+  Recompensa: 5.0
+
+Paso 163:
+  Posiciones: ['fire_1', 'fire_0', 'fire_3']
+  En tránsito: [True, False, True]
+  Destino final: ['fire_2', 'None', 'fire_2']
+  Próximo destino: ['fire_2', 'None', 'fire_2']
+  Acción seleccionada: [9, 9, 6]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [0, 0, 20, 10, 5]
+  Recompensa: -2.0
+
+Paso 164:
+  Posiciones: ['fire_2', 'fire_0', 'fire_2']
+  En tránsito: [False, True, False]
+  Destino final: ['None', 'starter_1', 'None']
+  Próximo destino: ['None', 'fire_1', 'None']
+  Acción seleccionada: [9, 7, 2]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [0, 0, 20, 10, 5]
+  Recompensa: -1.0
+
+Paso 165:
+  Posiciones: ['fire_2', 'fire_0', 'fire_2']
+  En tránsito: [True, True, False]
+  Destino final: ['starter_1', 'starter_1', 'None']
+  Próximo destino: ['fire_1', 'fire_1', 'None']
+  Acción seleccionada: [5, 8, 0]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [0, 0, 20, 10, 5]
+  Recompensa: 0
+
+Paso 166:
+  Posiciones: ['fire_2', 'fire_0', 'fire_2']
+  En tránsito: [True, True, True]
+  Destino final: ['starter_1', 'starter_1', 'fire_0']
+  Próximo destino: ['fire_1', 'fire_1', 'fire_1']
+  Acción seleccionada: [6, 7, 7]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [0, 0, 20, 10, 5]
+  Recompensa: 0
+
+Paso 167:
+  Posiciones: ['fire_1', 'fire_1', 'fire_2']
+  En tránsito: [True, True, True]
+  Destino final: ['starter_1', 'starter_1', 'fire_0']
+  Próximo destino: ['starter_1', 'starter_1', 'fire_1']
+  Acción seleccionada: [9, 6, 4]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [0, 0, 20, 10, 5]
+  Recompensa: -0.5
+
+Paso 168:
+  Posiciones: ['fire_1', 'fire_1', 'fire_1']
+  En tránsito: [True, True, True]
+  Destino final: ['starter_1', 'starter_1', 'fire_4']
+  Próximo destino: ['starter_1', 'starter_1', 'fire_2']
+  Acción seleccionada: [1, 8, 6]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [0, 0, 20, 10, 5]
+  Recompensa: 0
+
+Paso 169:
+  Posiciones: ['starter_1', 'starter_1', 'fire_1']
+  En tránsito: [False, False, True]
+  Destino final: ['None', 'None', 'fire_4']
+  Próximo destino: ['None', 'None', 'fire_2']
+  Acción seleccionada: [7, 8, 2]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [0, 0, 20, 10, 5]
+  Recompensa: 0
+
+Paso 170:
+  Posiciones: ['starter_1', 'starter_1', 'fire_2']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_2', 'starter_0', 'fire_4']
+  Próximo destino: ['depot_1', 'depot_1', 'fire_3']
+  Acción seleccionada: [7, 3, 9]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [0, 0, 20, 10, 5]
+  Recompensa: 0
+
+Paso 171:
+  Posiciones: ['depot_1', 'depot_1', 'fire_2']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_2', 'starter_0', 'fire_4']
+  Próximo destino: ['depot_2', 'depot_0', 'fire_3']
+  Acción seleccionada: [5, 6, 8]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [0, 0, 20, 10, 5]
+  Recompensa: 0
+
+Paso 172:
+  Posiciones: ['depot_1', 'depot_1', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_2', 'starter_0', 'fire_4']
+  Próximo destino: ['depot_2', 'depot_0', 'fire_4']
+  Acción seleccionada: [6, 8, 4]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [0, 0, 20, 10, 5]
+  Recompensa: 0
+
+Paso 173:
+  Posiciones: ['depot_1', 'depot_1', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_2', 'starter_0', 'fire_4']
+  Próximo destino: ['depot_2', 'depot_0', 'fire_4']
+  Acción seleccionada: [7, 2, 6]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [0, 0, 20, 10, 5]
+  Recompensa: -1.0
+
+Paso 174:
+  Posiciones: ['depot_1', 'depot_0', 'fire_4']
+  En tránsito: [True, True, False]
+  Destino final: ['depot_2', 'starter_0', 'None']
+  Próximo destino: ['depot_2', 'starter_0', 'None']
+  Acción seleccionada: [0, 3, 9]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [0, 0, 20, 10, 5]
+  Recompensa: 5.0
+
+Paso 175:
+  Posiciones: ['depot_2', 'starter_0', 'fire_4']
+  En tránsito: [False, False, True]
+  Destino final: ['None', 'None', 'starter_1']
+  Próximo destino: ['None', 'None', 'fire_3']
+  Acción seleccionada: [7, 0, 5]
+  Niveles de agua: [10, 0, 0]
+  Niveles de fuego: [0, 0, 20, 10, 5]
+  Recompensa: -1.0
+
+Paso 176:
+  Posiciones: ['depot_2', 'starter_0', 'fire_4']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'fire_0', 'starter_1']
+  Próximo destino: ['None', 'fire_0', 'fire_3']
+  Acción seleccionada: [0, 4, 3]
+  Niveles de agua: [10, 0, 0]
+  Niveles de fuego: [0, 0, 20, 10, 5]
+  Recompensa: 0
+
+Paso 177:
+  Posiciones: ['depot_2', 'starter_0', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_0', 'fire_0', 'starter_1']
+  Próximo destino: ['fire_4', 'fire_0', 'depot_1']
+  Acción seleccionada: [2, 2, 9]
+  Niveles de agua: [10, 0, 0]
+  Niveles de fuego: [0, 0, 20, 10, 5]
+  Recompensa: 0
+
+Paso 178:
+  Posiciones: ['depot_2', 'fire_0', 'fire_3']
+  En tránsito: [True, False, True]
+  Destino final: ['fire_0', 'None', 'starter_1']
+  Próximo destino: ['fire_4', 'None', 'depot_1']
+  Acción seleccionada: [2, 6, 9]
+  Niveles de agua: [10, 0, 0]
+  Niveles de fuego: [0, 0, 20, 10, 5]
+  Recompensa: 0
+
+Paso 179:
+  Posiciones: ['depot_2', 'fire_0', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_0', 'depot_1', 'starter_1']
+  Próximo destino: ['fire_4', 'starter_0', 'depot_1']
+  Acción seleccionada: [3, 4, 2]
+  Niveles de agua: [10, 0, 0]
+  Niveles de fuego: [0, 0, 20, 10, 5]
+  Recompensa: -0.5
+
+Paso 180:
+  Posiciones: ['fire_4', 'fire_0', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_3', 'depot_1', 'starter_1']
+  Próximo destino: ['fire_3', 'starter_0', 'starter_1']
+  Acción seleccionada: [3, 7, 1]
+  Niveles de agua: [10, 0, 0]
+  Niveles de fuego: [0, 0, 20, 10, 5]
+  Recompensa: 0
+
+Paso 181:
+  Posiciones: ['fire_4', 'starter_0', 'starter_1']
+  En tránsito: [True, True, False]
+  Destino final: ['fire_3', 'depot_1', 'None']
+  Próximo destino: ['fire_3', 'depot_0', 'None']
+  Acción seleccionada: [0, 9, 5]
+  Niveles de agua: [10, 0, 0]
+  Niveles de fuego: [0, 0, 20, 10, 5]
+  Recompensa: 5.0
+
+Paso 182:
+  Posiciones: ['fire_3', 'depot_0', 'starter_1']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'depot_1', 'depot_0']
+  Próximo destino: ['None', 'depot_1', 'depot_1']
+  Acción seleccionada: [7, 3, 3]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [0, 0, 20, 0, 5]
+  Recompensa: 0
+
+Paso 183:
+  Posiciones: ['fire_3', 'depot_0', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_2', 'depot_1', 'depot_0']
+  Próximo destino: ['fire_4', 'depot_1', 'depot_0']
+  Acción seleccionada: [6, 0, 9]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [0, 0, 20, 0, 5]
+  Recompensa: 0
+
+Paso 184:
+  Posiciones: ['fire_3', 'depot_0', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_2', 'depot_1', 'depot_0']
+  Próximo destino: ['fire_4', 'depot_1', 'depot_0']
+  Acción seleccionada: [8, 9, 6]
+  Niveles de agua: [0, 0, 0]
+  Niveles de fuego: [0, 0, 20, 0, 5]
+  Recompensa: 5.0
+
+Paso 185:
+  Posiciones: ['fire_4', 'depot_1', 'depot_1']
+  En tránsito: [True, False, True]
+  Destino final: ['depot_2', 'None', 'depot_0']
+  Próximo destino: ['depot_2', 'None', 'depot_0']
+  Acción seleccionada: [5, 5, 3]
+  Niveles de agua: [0, 10, 0]
+  Niveles de fuego: [0, 0, 20, 0, 5]
+  Recompensa: 5.0
+
+Paso 186:
+  Posiciones: ['fire_4', 'depot_1', 'depot_0']
+  En tránsito: [True, True, False]
+  Destino final: ['depot_2', 'depot_0', 'None']
+  Próximo destino: ['depot_2', 'depot_0', 'None']
+  Acción seleccionada: [1, 0, 7]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [0, 0, 20, 0, 5]
+  Recompensa: 0
+
+Paso 187:
+  Posiciones: ['fire_4', 'depot_1', 'depot_0']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_2', 'depot_0', 'depot_2']
+  Próximo destino: ['depot_2', 'depot_0', 'depot_1']
+  Acción seleccionada: [2, 0, 9]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [0, 0, 20, 0, 5]
+  Recompensa: 5.0
+
+Paso 188:
+  Posiciones: ['depot_2', 'depot_1', 'depot_0']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'depot_0', 'depot_2']
+  Próximo destino: ['None', 'depot_0', 'depot_1']
+  Acción seleccionada: [2, 9, 3]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 20, 0, 5]
+  Recompensa: -1.0
+
+Paso 189:
+  Posiciones: ['depot_2', 'depot_0', 'depot_0']
+  En tránsito: [True, False, True]
+  Destino final: ['fire_2', 'None', 'depot_2']
+  Próximo destino: ['fire_4', 'None', 'depot_1']
+  Acción seleccionada: [9, 5, 1]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 20, 0, 5]
+  Recompensa: -1.0
+
+Paso 190:
+  Posiciones: ['depot_2', 'depot_0', 'depot_1']
+  En tránsito: [True, False, True]
+  Destino final: ['fire_2', 'None', 'depot_2']
+  Próximo destino: ['fire_4', 'None', 'depot_2']
+  Acción seleccionada: [1, 7, 8]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 20, 0, 5]
+  Recompensa: 0
+
+Paso 191:
+  Posiciones: ['depot_2', 'depot_0', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_2', 'depot_2', 'depot_2']
+  Próximo destino: ['fire_4', 'depot_1', 'depot_2']
+  Acción seleccionada: [1, 6, 3]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 20, 0, 5]
+  Recompensa: 0
+
+Paso 192:
+  Posiciones: ['fire_4', 'depot_0', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_2', 'depot_2', 'depot_2']
+  Próximo destino: ['fire_3', 'depot_1', 'depot_2']
+  Acción seleccionada: [2, 6, 8]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 20, 0, 5]
+  Recompensa: 0
+
+Paso 193:
+  Posiciones: ['fire_4', 'depot_0', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_2', 'depot_2', 'depot_2']
+  Próximo destino: ['fire_3', 'depot_1', 'depot_2']
+  Acción seleccionada: [1, 6, 9]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 20, 0, 5]
+  Recompensa: -1.0
+
+Paso 194:
+  Posiciones: ['fire_3', 'depot_1', 'depot_2']
+  En tránsito: [True, True, False]
+  Destino final: ['fire_2', 'depot_2', 'None']
+  Próximo destino: ['fire_2', 'depot_2', 'None']
+  Acción seleccionada: [3, 9, 6]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 20, 0, 5]
+  Recompensa: 0
+
+Paso 195:
+  Posiciones: ['fire_3', 'depot_1', 'depot_2']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_2', 'depot_2', 'depot_1']
+  Próximo destino: ['fire_2', 'depot_2', 'depot_1']
+  Acción seleccionada: [2, 3, 3]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 20, 0, 5]
+  Recompensa: 5.0
+
+Paso 196:
+  Posiciones: ['fire_2', 'depot_1', 'depot_2']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'depot_2', 'depot_1']
+  Próximo destino: ['None', 'depot_2', 'depot_1']
+  Acción seleccionada: [4, 5, 0]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 5]
+  Recompensa: 0
+
+Paso 197:
+  Posiciones: ['fire_2', 'depot_1', 'depot_2']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_4', 'depot_2', 'depot_1']
+  Próximo destino: ['fire_3', 'depot_2', 'depot_1']
+  Acción seleccionada: [9, 5, 0]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 5]
+  Recompensa: -1.0
+
+Paso 198:
+  Posiciones: ['fire_2', 'depot_2', 'depot_2']
+  En tránsito: [True, False, True]
+  Destino final: ['fire_4', 'None', 'depot_1']
+  Próximo destino: ['fire_3', 'None', 'depot_1']
+  Acción seleccionada: [3, 5, 1]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 5]
+  Recompensa: -1.0
+
+Paso 199:
+  Posiciones: ['fire_3', 'depot_2', 'depot_1']
+  En tránsito: [True, True, False]
+  Destino final: ['fire_4', 'depot_0', 'None']
+  Próximo destino: ['fire_4', 'depot_1', 'None']
+  Acción seleccionada: [1, 9, 4]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 5]
+  Recompensa: 0
+
+Paso 200:
+  Posiciones: ['fire_3', 'depot_2', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_4', 'depot_0', 'fire_4']
+  Próximo destino: ['fire_4', 'depot_1', 'fire_3']
+  Acción seleccionada: [5, 5, 6]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 5]
+  Recompensa: -1.0
+
+Paso 201:
+  Posiciones: ['fire_4', 'depot_2', 'depot_1']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'depot_0', 'fire_4']
+  Próximo destino: ['None', 'depot_1', 'fire_3']
+  Acción seleccionada: [0, 3, 5]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 5]
+  Recompensa: 0
+
+Paso 202:
+  Posiciones: ['fire_4', 'depot_2', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_0', 'depot_0', 'fire_4']
+  Próximo destino: ['fire_3', 'depot_1', 'fire_3']
+  Acción seleccionada: [2, 4, 8]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 5]
+  Recompensa: 0
+
+Paso 203:
+  Posiciones: ['fire_4', 'depot_1', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_0', 'depot_0', 'fire_4']
+  Próximo destino: ['fire_3', 'depot_0', 'fire_4']
+  Acción seleccionada: [8, 4, 2]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 5]
+  Recompensa: -0.5
+
+Paso 204:
+  Posiciones: ['fire_3', 'depot_1', 'fire_3']
+  En tránsito: [True, True, True]
+  Destino final: ['starter_0', 'depot_0', 'fire_4']
+  Próximo destino: ['fire_2', 'depot_0', 'fire_4']
+  Acción seleccionada: [3, 3, 8]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 5]
+  Recompensa: 2.5
+
+Paso 205:
+  Posiciones: ['fire_3', 'depot_1', 'fire_4']
+  En tránsito: [True, True, False]
+  Destino final: ['starter_0', 'depot_0', 'None']
+  Próximo destino: ['fire_2', 'depot_0', 'None']
+  Acción seleccionada: [7, 2, 7]
+  Niveles de agua: [0, 10, 5]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: -1.0
+
+Paso 206:
+  Posiciones: ['fire_2', 'depot_0', 'fire_4']
+  En tránsito: [True, False, True]
+  Destino final: ['starter_0', 'None', 'depot_2']
+  Próximo destino: ['depot_0', 'None', 'depot_2']
+  Acción seleccionada: [0, 8, 1]
+  Niveles de agua: [0, 10, 5]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 0
+
+Paso 207:
+  Posiciones: ['fire_2', 'depot_0', 'fire_4']
+  En tránsito: [True, True, True]
+  Destino final: ['starter_0', 'starter_0', 'depot_2']
+  Próximo destino: ['depot_0', 'starter_0', 'depot_2']
+  Acción seleccionada: [9, 6, 9]
+  Niveles de agua: [0, 10, 5]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 0
+
+Paso 208:
+  Posiciones: ['depot_0', 'starter_0', 'fire_4']
+  En tránsito: [True, False, True]
+  Destino final: ['starter_0', 'None', 'depot_2']
+  Próximo destino: ['starter_0', 'None', 'depot_2']
+  Acción seleccionada: [1, 7, 9]
+  Niveles de agua: [0, 10, 5]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 2.5
+
+Paso 209:
+  Posiciones: ['starter_0', 'starter_0', 'depot_2']
+  En tránsito: [False, True, False]
+  Destino final: ['None', 'depot_2', 'None']
+  Próximo destino: ['None', 'depot_0', 'None']
+  Acción seleccionada: [3, 4, 8]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 0
+
+Paso 210:
+  Posiciones: ['starter_0', 'depot_0', 'depot_2']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_3', 'depot_2', 'starter_0']
+  Próximo destino: ['depot_0', 'depot_1', 'depot_1']
+  Acción seleccionada: [6, 5, 4]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: -0.5
+
+Paso 211:
+  Posiciones: ['depot_0', 'depot_0', 'depot_2']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_1', 'depot_2', 'starter_0']
+  Próximo destino: ['depot_1', 'depot_1', 'depot_1']
+  Acción seleccionada: [3, 2, 8]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 0
+
+Paso 212:
+  Posiciones: ['depot_0', 'depot_0', 'depot_2']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_1', 'depot_2', 'starter_0']
+  Próximo destino: ['depot_1', 'depot_1', 'depot_1']
+  Acción seleccionada: [4, 6, 3]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 0
+
+Paso 213:
+  Posiciones: ['depot_0', 'depot_1', 'depot_2']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_1', 'depot_2', 'starter_0']
+  Próximo destino: ['depot_1', 'depot_2', 'depot_1']
+  Acción seleccionada: [7, 7, 4]
+  Niveles de agua: [0, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 5.0
+
+Paso 214:
+  Posiciones: ['depot_1', 'depot_1', 'depot_1']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'depot_2', 'starter_0']
+  Próximo destino: ['None', 'depot_2', 'depot_0']
+  Acción seleccionada: [1, 9, 2]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 0
+
+Paso 215:
+  Posiciones: ['depot_1', 'depot_1', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_1', 'depot_2', 'starter_0']
+  Próximo destino: ['starter_1', 'depot_2', 'depot_0']
+  Acción seleccionada: [0, 9, 3]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: -0.5
+
+Paso 216:
+  Posiciones: ['starter_1', 'depot_1', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_0', 'depot_2', 'starter_0']
+  Próximo destino: ['fire_1', 'depot_2', 'depot_0']
+  Acción seleccionada: [5, 3, 5]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: -1.0
+
+Paso 217:
+  Posiciones: ['starter_1', 'depot_2', 'depot_0']
+  En tránsito: [True, False, True]
+  Destino final: ['fire_0', 'None', 'starter_0']
+  Próximo destino: ['fire_1', 'None', 'starter_0']
+  Acción seleccionada: [0, 4, 2]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: -0.5
+
+Paso 218:
+  Posiciones: ['fire_1', 'depot_2', 'starter_0']
+  En tránsito: [True, True, False]
+  Destino final: ['fire_0', 'fire_4', 'None']
+  Próximo destino: ['fire_0', 'fire_4', 'None']
+  Acción seleccionada: [3, 5, 3]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 0
+
+Paso 219:
+  Posiciones: ['fire_1', 'depot_2', 'starter_0']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_0', 'fire_4', 'fire_3']
+  Próximo destino: ['fire_0', 'fire_4', 'depot_0']
+  Acción seleccionada: [7, 1, 5]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: -1.5
+
+Paso 220:
+  Posiciones: ['fire_1', 'depot_2', 'depot_0']
+  En tránsito: [True, True, False]
+  Destino final: ['fire_0', 'fire_4', 'None']
+  Próximo destino: ['fire_0', 'fire_4', 'None']
+  Acción seleccionada: [0, 7, 6]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 0
+
+Paso 221:
+  Posiciones: ['fire_0', 'fire_4', 'depot_0']
+  En tránsito: [False, False, True]
+  Destino final: ['None', 'None', 'depot_1']
+  Próximo destino: ['None', 'None', 'depot_1']
+  Acción seleccionada: [7, 5, 3]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 0
+
+Paso 222:
+  Posiciones: ['fire_0', 'fire_4', 'depot_0']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_2', 'depot_0', 'depot_1']
+  Próximo destino: ['fire_3', 'fire_3', 'depot_1']
+  Acción seleccionada: [5, 0, 5]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 0
+
+Paso 223:
+  Posiciones: ['fire_0', 'fire_4', 'depot_0']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_2', 'depot_0', 'depot_1']
+  Próximo destino: ['fire_3', 'fire_3', 'depot_1']
+  Acción seleccionada: [3, 3, 3]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: -1.0
+
+Paso 224:
+  Posiciones: ['fire_0', 'fire_3', 'depot_1']
+  En tránsito: [True, True, False]
+  Destino final: ['depot_2', 'depot_0', 'None']
+  Próximo destino: ['fire_3', 'fire_2', 'None']
+  Acción seleccionada: [3, 4, 8]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 0
+
+Paso 225:
+  Posiciones: ['fire_0', 'fire_3', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_2', 'depot_0', 'starter_0']
+  Próximo destino: ['fire_3', 'fire_2', 'depot_0']
+  Acción seleccionada: [6, 0, 1]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 0
+
+Paso 226:
+  Posiciones: ['fire_0', 'fire_2', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_2', 'depot_0', 'starter_0']
+  Próximo destino: ['fire_3', 'depot_0', 'depot_0']
+  Acción seleccionada: [8, 8, 2]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 0
+
+Paso 227:
+  Posiciones: ['fire_3', 'fire_2', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_2', 'depot_0', 'starter_0']
+  Próximo destino: ['fire_4', 'depot_0', 'depot_0']
+  Acción seleccionada: [0, 1, 6]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: -1.0
+
+Paso 228:
+  Posiciones: ['fire_3', 'depot_0', 'depot_0']
+  En tránsito: [True, False, True]
+  Destino final: ['depot_2', 'None', 'starter_0']
+  Próximo destino: ['fire_4', 'None', 'starter_0']
+  Acción seleccionada: [4, 5, 3]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: -1.0
+
+Paso 229:
+  Posiciones: ['fire_4', 'depot_0', 'starter_0']
+  En tránsito: [True, False, False]
+  Destino final: ['depot_2', 'None', 'None']
+  Próximo destino: ['depot_2', 'None', 'None']
+  Acción seleccionada: [3, 8, 4]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 0
+
+Paso 230:
+  Posiciones: ['fire_4', 'depot_0', 'starter_0']
+  En tránsito: [True, True, True]
+  Destino final: ['depot_2', 'starter_0', 'fire_4']
+  Próximo destino: ['depot_2', 'starter_0', 'depot_0']
+  Acción seleccionada: [6, 6, 8]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: -0.5
+
+Paso 231:
+  Posiciones: ['fire_4', 'starter_0', 'depot_0']
+  En tránsito: [True, False, True]
+  Destino final: ['depot_2', 'None', 'starter_0']
+  Próximo destino: ['depot_2', 'None', 'starter_0']
+  Acción seleccionada: [7, 4, 7]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: -1.0
+
+Paso 232:
+  Posiciones: ['depot_2', 'starter_0', 'starter_0']
+  En tránsito: [False, True, False]
+  Destino final: ['None', 'fire_4', 'None']
+  Próximo destino: ['None', 'depot_0', 'None']
+  Acción seleccionada: [4, 4, 7]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: -0.5
+
+Paso 233:
+  Posiciones: ['depot_2', 'depot_0', 'starter_0']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_4', 'fire_4', 'depot_2']
+  Próximo destino: ['fire_4', 'fire_2', 'depot_0']
+  Acción seleccionada: [6, 9, 0]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 0
+
+Paso 234:
+  Posiciones: ['depot_2', 'depot_0', 'depot_0']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_4', 'fire_4', 'depot_2']
+  Próximo destino: ['fire_4', 'fire_2', 'depot_1']
+  Acción seleccionada: [8, 4, 3]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: -0.5
+
+Paso 235:
+  Posiciones: ['depot_2', 'fire_2', 'depot_0']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_4', 'fire_4', 'depot_2']
+  Próximo destino: ['fire_4', 'fire_3', 'depot_1']
+  Acción seleccionada: [1, 2, 6]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 0
+
+Paso 236:
+  Posiciones: ['fire_4', 'fire_2', 'depot_0']
+  En tránsito: [False, True, True]
+  Destino final: ['None', 'fire_4', 'depot_2']
+  Próximo destino: ['None', 'fire_3', 'depot_1']
+  Acción seleccionada: [2, 9, 4]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: -0.5
+
+Paso 237:
+  Posiciones: ['fire_4', 'fire_3', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_2', 'starter_1', 'depot_2']
+  Próximo destino: ['fire_3', 'depot_1', 'depot_2']
+  Acción seleccionada: [2, 2, 3]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 0
+
+Paso 238:
+  Posiciones: ['fire_4', 'fire_3', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_2', 'starter_1', 'depot_2']
+  Próximo destino: ['fire_3', 'depot_1', 'depot_2']
+  Acción seleccionada: [0, 4, 3]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 0
+
+Paso 239:
+  Posiciones: ['fire_3', 'fire_3', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_2', 'starter_1', 'depot_2']
+  Próximo destino: ['fire_2', 'depot_1', 'depot_2']
+  Acción seleccionada: [1, 9, 5]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 0
+
+Paso 240:
+  Posiciones: ['fire_3', 'depot_1', 'depot_1']
+  En tránsito: [True, True, True]
+  Destino final: ['fire_2', 'starter_1', 'depot_2']
+  Próximo destino: ['fire_2', 'starter_1', 'depot_2']
+  Acción seleccionada: [1, 9, 3]
+  Niveles de agua: [10, 10, 10]
+  Niveles de fuego: [0, 0, 10, 0, 0]
+  Recompensa: 4.0
+
