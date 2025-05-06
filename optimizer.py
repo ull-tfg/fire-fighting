@@ -11,7 +11,7 @@ from exact_graph import generate_exact_graph
 import agent as agent_module
 
 # Número de episodes para evaluar cada configuración
-NUM_EVALUATION_EPISODES = 600
+NUM_EVALUATION_EPISODES = 1000
 # Número de trials de Optuna
 N_TRIALS = 100
 
@@ -66,7 +66,7 @@ def objective(trial):
         episode_steps = 0
         
         while not done:
-            action = agent.select_action(state, in_transit_mask=env.agent_in_transit)
+            action = agent.select_action(state)
             step_result = env.step(action)
             
             # Handle different step() return formats

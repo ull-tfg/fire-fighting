@@ -8,14 +8,14 @@ from dqn import CentralizedDQN
 
 
 # Hyperparámetros
-GAMMA = 0.98
-LR = 1e-5
+GAMMA = 0.9263139323797492
+LR = 4.9765615998590815e-05
 EPSILON_START = 1.0
 EPSILON_END = 0.015
-EPSILON_DECAY = 0.995
+EPSILON_DECAY = 0.9927010114417091
 REPLAY_SIZE = 50000
-BATCH_SIZE = 256
-TAU = 0.005
+BATCH_SIZE = 448
+TAU = 0.0017818722019480129
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
