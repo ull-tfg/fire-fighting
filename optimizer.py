@@ -70,7 +70,7 @@ def objective(trial):
             step_result = env.step(action)
             
             # Handle different step() return formats
-            if len(step_result) == 5:  # New Gym API: state, reward, terminated, truncated, info
+            if len(step_result) == 5:
                 next_state, reward, terminated, truncated, _ = step_result
                 done = terminated or truncated
             else:  # Old API or custom format

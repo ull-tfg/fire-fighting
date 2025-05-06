@@ -8,6 +8,7 @@ import pandas as pd
 from environment import FirefightingEnv
 from agent import DQNAgent
 from exact_graph import generate_exact_graph, visualize_exact_graph
+from pygame_viz import visualize_trained_agent
 
 # Crear la carpeta de resultados si no existe
 results_dir = "results"
@@ -47,7 +48,7 @@ def evaluate_agent(agent, env, num_eval_episodes=5):
         steps_done = 0
         while not done:
             # Usar política determinista (sin exploración)
-            action = agent.select_action(state, in_transit_mask=env.agent_in_transit)
+            action = agent.select_action(state)
             next_state, reward, done, info = env.step(action)
             state = next_state
             total_reward += reward
@@ -183,7 +184,7 @@ def record_episode(agent, env, episode_number, save_dir):
     
     while not done:
         # Seleccionar acción
-        action = agent.select_action(state, in_transit_mask=env.agent_in_transit)
+        action = agent.select_action(state)
         
         # Registrar estado y acción
         episode_data['steps'].append(step)
@@ -191,7 +192,7 @@ def record_episode(agent, env, episode_number, save_dir):
         episode_data['states'].append(state.tolist() if hasattr(state, 'tolist') else state)
         episode_data['agent_positions'].append([env.agent_positions[i] for i in range(env.num_agents)])
         episode_data['transit_status'].append([env.agent_in_transit[i] for i in range(env.num_agents)])
-        episode_data['water_levels'].append([env.agent_water[i] for i in range(env.num_agents)])
+        episode_data['water_levels'].append([env.agents_water[i] for i in range(env.num_agents)])
         episode_data['fire_levels'].append(list(env.fire_levels.values()))
         
         # Registrar destinos finales y siguientes
@@ -282,7 +283,7 @@ for ep in range(EPISODES):
     
     while not done:
         # env.render()  # visual con pygame
-        action = agent.select_action(state, in_transit_mask=env.agent_in_transit)
+        action = agent.select_action(state)
         next_state, reward, done, info = env.step(action)
         agent.store_transition(state, action, reward, next_state, done)
         state = next_state
@@ -328,3 +329,11 @@ metrics = {
 }
 # Mostrar visualización avanzada
 visualize_multi_agent_performance(metrics, experiment_dir)
+
+# Visualizar el agente entrenado
+visualize_trained_agent(agent, env, experiment_dir)
+
+# Visualizar el agente entrenado usando la interfaz interactiva con botones
+print("\nIniciando visualización interactiva con botones...")
+from pygame_viz import visualize_trained_agent_interactive
+visualize_trained_agent_interactive(agent, env, max_steps=1000)

@@ -8,14 +8,14 @@ from dqn import CentralizedDQN
 
 
 # Hyperparámetros
-GAMMA = 0.9726280205180136
-LR = 9.815084417451514e-06
+GAMMA = 0.98
+LR = 1e-5
 EPSILON_START = 1.0
-EPSILON_END = 0.1
-EPSILON_DECAY = 0.9986533647491379
+EPSILON_END = 0.015
+EPSILON_DECAY = 0.995
 REPLAY_SIZE = 50000
-BATCH_SIZE = 384
-TAU = 0.09790627055934469
+BATCH_SIZE = 256
+TAU = 0.005
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -33,55 +33,29 @@ class DQNAgent:
         self.epsilon = EPSILON_START
         self.tau = TAU
         self.losses = []
-
-        # Añadir registro de últimas acciones tomadas
-        self.last_actions = np.zeros(shape=(action_space.nvec.shape[0],), dtype=int)
     
-    def select_action(self, state, in_transit_mask=None):
-        # Create a copy of the current action that we'll update
-        selected_action = self.last_actions.copy()
-
-        # Handle the case where in_transit_mask is a dictionary
-        if isinstance(in_transit_mask, dict):
-            # Create an empty boolean mask array
-            transit_mask_array = np.zeros(self.action_space.nvec.shape[0], dtype=bool)
-
-            # Fill in the True values for agents in transit
-            for agent_id, is_in_transit in in_transit_mask.items():
-                if is_in_transit:
-                    transit_mask_array[agent_id] = True
-
-            in_transit_mask = transit_mask_array
-        elif in_transit_mask is None:
-            in_transit_mask = np.zeros(self.action_space.nvec.shape[0], dtype=bool)
-
-        # Only select new actions for agents that are NOT in transit
-        agents_to_act = np.where(~np.array(in_transit_mask))[0]
-
-        if len(agents_to_act) > 0:
-            if random.random() < self.epsilon:
-                # Random actions only for agents not in transit
-                for agent_id in agents_to_act:
-                    selected_action[agent_id] = random.randint(0, self.action_space.nvec[agent_id] - 1)
+    def select_action(self, state):
+        if random.random() < self.epsilon:
+            # Random action based on action space
+            if self.action_space is not None:
+                return np.array([random.randint(0, n - 1) for n in self.action_space.nvec])
             else:
-                with torch.no_grad():
-                    state_tensor = torch.tensor(state, dtype=torch.float32).unsqueeze(0).to(device)
-                    q_values = self.policy_net(state_tensor)
-
-                    # Handle action selection for each agent not in transit
-                    q_reshaped = q_values.view(*self.action_space.nvec)
-
-                    for agent_id in agents_to_act:
-                        # Get the best action for this specific agent
-                        indices = [slice(None) if i == agent_id else selected_action[i] 
-                                  for i in range(len(self.action_space.nvec))]
-                        agent_q_values = q_reshaped[tuple(indices)]
-                        selected_action[agent_id] = agent_q_values.argmax().item()
-
-        # Update the last actions
-        self.last_actions = selected_action.copy()
-    
-        return selected_action
+                return random.randint(0, self.action_dim - 1)
+        
+        with torch.no_grad():
+            state_tensor = torch.tensor(state, dtype=torch.float32).unsqueeze(0).to(device)
+            q_values = self.policy_net(state_tensor)
+            
+            # Handle multi-discrete action space if provided
+            if self.action_space is not None:
+                # Encuentra el índice del valor máximo mientras permanece en GPU
+                flat_idx = q_values.view(-1).argmax().item()
+                # Convierte el índice plano a coordenadas multidimensionales
+                action_indices = np.unravel_index(flat_idx, self.action_space.nvec)
+                return np.array(action_indices)
+            else:
+                # Encuentra directamente el valor máximo en GPU
+                return q_values.argmax().item()
     
     def store_transition(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
