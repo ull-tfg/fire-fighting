@@ -350,7 +350,59 @@ class FirefightingEnv(gym.Env):
             except (nx.NetworkXNoPath, nx.NodeNotFound):
                 continue
         return closest_depot
+    
+    def reward_by_distance(self, agent_id, target_node):
+        """Proporciona recompensa basada en la cercanía del nodo al agente.
+        El nodo más cercano recibe 1.0, y los demás reciben valores proporcionalmente menores.
+        """
+        current_pos = self.agent_positions[agent_id]
+        node_type = None
+        # Determinar el tipo de nodo objetivo
+        if target_node in self.fire_nodes:
+            node_type = 'fire'
+            relevant_nodes = self.fire_nodes
+        elif target_node in self.depot_nodes:
+            node_type = 'depot'
+            relevant_nodes = self.depot_nodes
+        else:
+            # Para nodos que no son ni fuego ni depósito, no aplicamos recompensa de distancia
+            return 0.0
+        # Calcular las distancias a todos los nodos del mismo tipo
+        distances = []
+        for node in relevant_nodes:
+            # No considerar nodos inalcanzables o inadecuados:
+            # - Para fuegos, ignorar los ya extinguidos
+            # - Para depósitos, considerar todos
+            if node_type == 'fire' and self.fire_levels.get(node, 0) <= 0:
+                continue
+            # Crear subgrafo para este nodo específico
+            node_subgraph = self.create_subgraph(node, agent_id)
+            try:
+                dist = nx.shortest_path_length(node_subgraph, 
+                                              source=current_pos, 
+                                              target=node, 
+                                              weight='transit_time')
+                distances.append((node, dist))
+            except (nx.NetworkXNoPath, nx.NodeNotFound):
+                # Ignorar nodos inalcanzables
+                continue
+        # Si no hay nodos alcanzables, recompensa mínima
+        if not distances:
+            return 0.0
+        # Ordenar por distancia (menor a mayor)
+        distances.sort(key=lambda x: x[1])
+        # Encontrar la posición del nodo objetivo en la lista ordenada
+        target_index = next((i for i, (node, _) in enumerate(distances) if node == target_node), None)
+        # Si el nodo objetivo no está en la lista (por alguna razón), recompensa mínima
+        if target_index is None:
+            return 0.0
 
+        # Calcular recompensa: 1.0 para el más cercano (0.75^0 = 1), decreciendo gradualmente
+        decay_factor = 0.75
+        reward = decay_factor ** target_index
+
+        return reward
+        
     def move_to_node(self, agent_id, target_node):
         """Move an agent to a target node with transit time."""
         # Si ya está en el nodo destino, no hacer nada
@@ -366,19 +418,17 @@ class FirefightingEnv(gym.Env):
         # Evaluar la calidad de la decisión para dar recompensa inmediata
         # Si el agente tiene poca agua y va a un depósito
         if target_node in self.depot_nodes and self.agents_water[agent_id] < self.agent_max_water[agent_id]/2:
-            if target_node == self.get_closest_depot(agent_id):
-                immediate_reward += 0.4 # Recompensa por ir al depósito más cercano
-            else:
-                immediate_reward -= 0.2 # Penalización por ir a un depósito más lejano
-            immediate_reward += 0.4
+            immediate_reward += self.reward_by_distance(agent_id, target_node)
         # Si el agente tiene agua y va a un nodo de incendio activo
         elif target_node in self.fire_nodes and self.fire_levels[target_node] > 0 and self.agents_water[agent_id] > 0:
-            immediate_reward += 0.4
+            immediate_reward += self.reward_by_distance(agent_id, target_node)
         # Penalización leve por decisiones subóptimas
         elif (target_node in self.depot_nodes and self.agents_water[agent_id] >= self.agent_max_water[agent_id]) or \
              (target_node in self.fire_nodes and self.fire_levels[target_node] <= 0) or \
-             (target_node in self.fire_nodes and self.agents_water[agent_id] <= 0):
-            immediate_reward -= 0.2
+             (target_node in self.fire_nodes and self.agents_water[agent_id] <= 0) or \
+             (target_node == current_node): # Si el agente intenta moverse al mismo nodo
+            immediate_reward -= 1
+
 
         # Crear un subgrafo para el agente
         subgraph = self.create_subgraph(target_node, agent_id)

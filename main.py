@@ -8,7 +8,7 @@ import pandas as pd
 from environment import FirefightingEnv
 from agent import DQNAgent
 from exact_graph import generate_exact_graph, visualize_exact_graph
-from pygame_viz import visualize_trained_agent
+from pygame_viz import visualize_trained_agent_interactive
 
 # Crear la carpeta de resultados si no existe
 results_dir = "results"
@@ -248,7 +248,7 @@ def record_episode(agent, env, episode_number, save_dir):
     
     print(f"Datos del episodio {episode_number} guardados en {filename}")
 
-EPISODES = 2000
+EPISODES = 10
 MAX_STEPS = 500
 rewards_history = []
 
@@ -330,10 +330,6 @@ metrics = {
 # Mostrar visualización avanzada
 visualize_multi_agent_performance(metrics, experiment_dir)
 
-# Visualizar el agente entrenado
-visualize_trained_agent(agent, env, experiment_dir)
-
 # Visualizar el agente entrenado usando la interfaz interactiva con botones
 print("\nIniciando visualización interactiva con botones...")
-from pygame_viz import visualize_trained_agent_interactive
-visualize_trained_agent_interactive(agent, env, max_steps=1000)
+visualize_trained_agent_interactive(agent, env, max_steps=100)

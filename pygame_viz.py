@@ -3,6 +3,8 @@ import networkx as nx
 import numpy as np
 import math
 import os
+import datetime
+import imageio
 from environment import FirefightingEnv
 from agent import DQNAgent
 from exact_graph import generate_exact_graph
@@ -47,6 +49,10 @@ class FirefightingViz:
         
         # Control de velocidad de los frames
         self.clock = pygame.time.Clock()
+        
+        # Estado de grabación de GIF
+        self.frames = []
+        self.max_frames = 300  # Máximo número de frames a capturar (para evitar problemas de memoria)
         
     def scale_and_center_layout(self):
         """Escalar y centrar el grafo para que encaje en la pantalla"""
@@ -386,6 +392,49 @@ class FirefightingViz:
                     return False
         return True
     
+    def capture_frame(self):
+        """Captura el frame actual y lo guarda en memoria para crear un GIF"""
+        if len(self.frames) < self.max_frames:
+            # Obtener datos de píxeles de la pantalla
+            frame_data = pygame.surfarray.array3d(self.screen)
+            # Convertir de formato pygame (3D, x,y,RGB) a formato PIL/pillow (y,x,RGB)
+            frame_data = frame_data.swapaxes(0, 1)
+            self.frames.append(frame_data)
+            
+            # Mostrar mensaje de captura
+            if len(self.frames) % 10 == 0 or len(self.frames) == 1:
+                print(f"Capturando frame {len(self.frames)}/{self.max_frames}")
+                
+        elif len(self.frames) == self.max_frames:
+            print("Límite de frames alcanzado (300). El GIF podría no mostrar toda la simulación.")
+            
+    def save_gif(self):
+        """Guarda los frames capturados como un archivo GIF"""
+        if not self.frames:
+            print("No hay frames para guardar.")
+            return
+            
+        # Crear carpeta para visualizaciones si no existe
+        output_dir = os.path.join(os.getcwd(), "visualizations")
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Generar nombre de archivo con timestamp
+        timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        filename = os.path.join(output_dir, f"simulacion_{timestamp}.gif")
+        
+        print(f"Guardando GIF con {len(self.frames)} frames...")
+        
+        # Guardar frames como GIF con mayor duración (1 segundo por frame para una reproducción más lenta)
+        with imageio.get_writer(filename, mode='I', duration=1) as writer:
+            for frame in self.frames:
+                # Convertir de array numpy a imagen PIL
+                writer.append_data(frame)
+        
+        print(f"GIF guardado como: {filename}")
+        
+        # Limpiar frames después de guardar
+        self.frames = []
+    
     def run_visualization(self, action_getter, max_steps=1000, fps=5):
         """Ejecutar la visualización con la función de obtención de acciones dada"""
         step = 0
@@ -399,6 +448,9 @@ class FirefightingViz:
             
             # Dibujar estado actual
             self.draw()
+            
+            # Capturar frame para GIF
+            self.capture_frame()
             
             # Obtener acciones
             actions = action_getter(self.env._get_obs())
@@ -444,26 +496,43 @@ class InteractiveFirefightingViz(FirefightingViz):
         self.button_active_color = (80, 180, 80)
         self.button_text_color = (0, 0, 0)
         
+        # Posicionar botones en la parte inferior derecha para evitar solapamiento con nodos
+        button_x_start = self.screen_width - (5 * self.button_width + 4 * self.button_margin + 40)
+        
         # Definir botones: [x, y, width, height, text, action]
         self.buttons = [
-            [20, self.screen_height - 120, self.button_width, self.button_height, "Paso", "step"],
-            [20 + self.button_width + self.button_margin, self.screen_height - 120, self.button_width, self.button_height, "Auto (on/off)", "auto"],
-            [20 + 2 * (self.button_width + self.button_margin), self.screen_height - 120, self.button_width, self.button_height, "Reiniciar", "reset"],
-            [20 + 3 * (self.button_width + self.button_margin), self.screen_height - 120, self.button_width, self.button_height, "Salir", "exit"]
+            [button_x_start, self.screen_height - 60, self.button_width, self.button_height, "Paso", "step"],
+            [button_x_start + self.button_width + self.button_margin, self.screen_height - 60, self.button_width, self.button_height, "Auto (on/off)", "auto"],
+            [button_x_start + 2 * (self.button_width + self.button_margin), self.screen_height - 60, self.button_width, self.button_height, "Guardar GIF", "save_gif"],
+            [button_x_start + 3 * (self.button_width + self.button_margin), self.screen_height - 60, self.button_width, self.button_height, "Reiniciar", "reset"],
+            [button_x_start + 4 * (self.button_width + self.button_margin), self.screen_height - 60, self.button_width, self.button_height, "Salir", "exit"]
         ]
+        
+        # Control de velocidad con botones adicionales 
+        self.speed_buttons = [
+            [button_x_start, self.screen_height - 110, 80, 30, "Lento", 1],
+            [button_x_start + 90, self.screen_height - 110, 80, 30, "Normal", 2],
+            [button_x_start + 180, self.screen_height - 110, 80, 30, "Rápido", 5]
+        ]
+        self.active_speed = 2  # Velocidad inicial
         
         # Estado del botón automático
         self.auto_mode = False
-        self.fps_auto = 2  # Velocidad predeterminada en modo automático
+        self.fps_auto = self.active_speed
         
         # Estado del botón que está siendo presionado
         self.active_button = None
         
+        # Estado de grabación de GIF
+        self.recording = False
+        self.frames = []
+        self.max_frames = 300  # Máximo número de frames a capturar (para evitar problemas de memoria)
+        
     def draw_buttons(self):
         """Dibujar los botones en la pantalla."""
         mouse_pos = pygame.mouse.get_pos()
-        mouse_clicked = pygame.mouse.get_pressed()[0]  # Botón izquierdo
         
+        # Dibujar botones principales
         for button in self.buttons:
             x, y, width, height, text, action = button
             
@@ -488,25 +557,158 @@ class InteractiveFirefightingViz(FirefightingViz):
             text_rect = text_surf.get_rect(center=(x + width/2, y + height/2))
             self.screen.blit(text_surf, text_rect)
             
+        # Dibujar botones de velocidad
+        for button in self.speed_buttons:
+            x, y, width, height, text, speed = button
+            
+            # Verificar si el ratón está sobre el botón
+            button_rect = pygame.Rect(x, y, width, height)
+            hover = button_rect.collidepoint(mouse_pos)
+            
+            # Usar color para indicar velocidad seleccionada
+            if speed == self.active_speed:
+                color = self.button_active_color
+            elif hover:
+                color = self.button_hover_color
+            else:
+                color = (180, 180, 180)  # Color más neutro para botones de velocidad
+                
+            pygame.draw.rect(self.screen, color, button_rect)
+            pygame.draw.rect(self.screen, (0, 0, 0), button_rect, 2)  # Borde
+            
+            # Dibujar texto
+            text_surf = self.font.render(text, True, self.button_text_color)
+            text_rect = text_surf.get_rect(center=(x + width/2, y + height/2))
+            self.screen.blit(text_surf, text_rect)
+            
     def draw_status_info(self, step, reward, done):
         """Dibujar información de estado sobre la simulación."""
-        status_rect = pygame.Rect(20, self.screen_height - 60, 500, 40)
+        status_rect = pygame.Rect(20, self.screen_height - 60, 350, 40)
         pygame.draw.rect(self.screen, (240, 240, 240), status_rect)
         pygame.draw.rect(self.screen, (0, 0, 0), status_rect, 1)
         
         # Información de estado
         status_text = f"Paso: {step} | Recompensa: {reward:.2f}"
         if done:
-            status_text += " | Estado: Completado"
-        else:
-            status_text += " | Estado: En progreso"
-            
+            status_text += " | Completado"
+        
         text_surf = self.font_large.render(status_text, True, self.TEXT_COLOR)
         self.screen.blit(text_surf, (30, self.screen_height - 50))
         
+        # Información sobre epsilon (siempre 0 para visualización)
+        epsilon_rect = pygame.Rect(20, self.screen_height - 100, 200, 30)
+        pygame.draw.rect(self.screen, (240, 240, 240), epsilon_rect)
+        pygame.draw.rect(self.screen, (0, 0, 0), epsilon_rect, 1)
+        
+        epsilon_text = self.font.render("Epsilon: 0.00 (visualización)", True, self.TEXT_COLOR)
+        self.screen.blit(epsilon_text, (30, self.screen_height - 95))
+        
+    def draw_edge(self, u, v):
+        """Dibujar una arista entre los nodos u y v con información de uso"""
+        start_pos = self.pos[u]
+        end_pos = self.pos[v]
+        
+        # Ajustar puntos finales para estar en la circunferencia de los nodos
+        dx = end_pos[0] - start_pos[0]
+        dy = end_pos[1] - start_pos[1]
+        length = max(1, math.sqrt(dx*dx + dy*dy))
+        
+        # Normalizar vector de dirección
+        dx /= length
+        dy /= length
+        
+        # Ajustar puntos finales
+        start_pos_adj = (start_pos[0] + dx * self.NODE_RADIUS, 
+                         start_pos[1] + dy * self.NODE_RADIUS)
+        end_pos_adj = (end_pos[0] - dx * self.NODE_RADIUS, 
+                       end_pos[1] - dy * self.NODE_RADIUS)
+        
+        # Obtener datos de la arista
+        edge_data = self.env.graph[u][v]
+        edge_width = edge_data.get('width', 1)
+        
+        # Obtener ocupación actual
+        edge_agents = self.env.edge_occupancy.get((u, v), [])
+        occupied_width = 0
+        for agent_id in edge_agents:
+            agent_vehicle_type = self.env.agent_vehicle_types[agent_id]
+            vehicle_width = self.env.vehicle_types[agent_vehicle_type]['width']
+            occupied_width += vehicle_width
+        
+        # Espacio disponible
+        available_width = max(0, edge_width - occupied_width)
+        
+        # Determinar color basado en ocupación (verde a rojo según nivel de congestión)
+        if edge_width > 0:
+            usage_ratio = occupied_width / edge_width
+            # Escala de color: verde (0,1,0) -> amarillo (1,1,0) -> rojo (1,0,0)
+            if usage_ratio <= 0.5:
+                # Verde a amarillo (interpolar)
+                red = min(255, max(0, int(255 * usage_ratio * 2)))
+                green = 255
+                blue = 0
+            else:
+                # Amarillo a rojo (interpolar)
+                red = 255
+                green = min(255, max(0, int(255 * (1 - (usage_ratio - 0.5) * 2))))
+                blue = 0
+            edge_color = (red, green, blue)
+        else:
+            edge_color = (100, 100, 100)  # Gris para aristas sin ancho
+            
+        # Grosor de línea basado en ancho del camino
+        line_width = max(1, min(6, self.EDGE_WIDTH + edge_width))
+        
+        # Dibujar arista con color según ocupación
+        pygame.draw.line(self.screen, edge_color, start_pos_adj, end_pos_adj, line_width)
+        
+        # Dibujar información de la arista
+        midpoint = ((start_pos_adj[0] + end_pos_adj[0]) / 2,
+                    (start_pos_adj[1] + end_pos_adj[1]) / 2)
+        
+        # Crear fondo para el texto para mejorar legibilidad
+        usage_text = f"Ancho: {available_width}/{edge_width}"
+        text_surf = self.font.render(usage_text, True, (0, 0, 0))
+        text_rect = text_surf.get_rect(center=(midpoint[0], midpoint[1] - 10))
+        
+        # Dibujar fondo semi-transparente
+        text_bg_rect = text_rect.inflate(10, 5)
+        text_bg = pygame.Surface((text_bg_rect.width, text_bg_rect.height), pygame.SRCALPHA)
+        text_bg.fill((255, 255, 255, 180))  # Blanco semi-transparente
+        self.screen.blit(text_bg, text_bg_rect)
+        self.screen.blit(text_surf, text_rect)
+        
+        # Tiempo de tránsito
+        time_text = self.font.render(f"T:{edge_data.get('transit_time', 1)}", True, (0, 0, 0))
+        time_rect = time_text.get_rect(center=(midpoint[0], midpoint[1] + 10))
+        
+        # Fondo para texto de tiempo
+        time_bg_rect = time_rect.inflate(10, 5)
+        time_bg = pygame.Surface((time_bg_rect.width, time_bg_rect.height), pygame.SRCALPHA)
+        time_bg.fill((255, 255, 255, 180))  # Blanco semi-transparente
+        self.screen.blit(time_bg, time_bg_rect)
+        self.screen.blit(time_text, time_rect)
+        
     def draw(self, step=0, reward=0, done=False):
         """Dibujar toda la visualización incluyendo los controles interactivos."""
-        super().draw()  # Llamar al método de la clase padre
+        # Limpiar pantalla
+        self.screen.fill(self.BACKGROUND)
+        
+        # Dibujar aristas
+        for u, v in self.env.graph.edges():
+            self.draw_edge(u, v)
+        
+        # Dibujar nodos
+        for node in self.env.graph.nodes():
+            self.draw_node(node)
+        
+        # Dibujar agentes
+        for agent_id in range(self.env.num_agents):
+            self.draw_agent(agent_id)
+        
+        # Dibujar leyenda y panel de estado
+        self.draw_legend()
+        self.draw_status_panel()
         
         # Dibujar botones e información de estado
         self.draw_buttons()
@@ -531,10 +733,24 @@ class InteractiveFirefightingViz(FirefightingViz):
                     return {"action": "auto_toggle"}
                 elif event.key == pygame.K_r:
                     return {"action": "reset"}
+                elif event.key == pygame.K_g:
+                    return {"action": "save_gif"}
+                # Teclas para control de velocidad
+                elif event.key == pygame.K_1:
+                    self.active_speed = 1
+                    self.fps_auto = self.active_speed
+                elif event.key == pygame.K_2:
+                    self.active_speed = 2
+                    self.fps_auto = self.active_speed
+                elif event.key == pygame.K_3:
+                    self.active_speed = 5
+                    self.fps_auto = self.active_speed
                     
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # Verificar si se ha hecho clic en algún botón
                 mouse_pos = pygame.mouse.get_pos()
+                
+                # Comprobar botones principales
                 for button in self.buttons:
                     x, y, width, height, _, action = button
                     button_rect = pygame.Rect(x, y, width, height)
@@ -545,10 +761,22 @@ class InteractiveFirefightingViz(FirefightingViz):
                         elif action == "auto":
                             self.auto_mode = not self.auto_mode
                             return {"action": "auto_toggle"}
+                        elif action == "save_gif":
+                            return {"action": "save_gif"}
                         elif action == "reset":
                             return {"action": "reset"}
                         elif action == "exit":
                             return {"action": "exit"}
+                
+                # Comprobar botones de velocidad
+                for button in self.speed_buttons:
+                    x, y, width, height, _, speed = button
+                    button_rect = pygame.Rect(x, y, width, height)
+                    
+                    if button_rect.collidepoint(mouse_pos):
+                        self.active_speed = speed
+                        self.fps_auto = speed
+                        return {"action": "speed_change"}
         
         # En modo automático, simular un evento de "paso" automáticamente
         if self.auto_mode:
@@ -556,7 +784,7 @@ class InteractiveFirefightingViz(FirefightingViz):
             
         # Ninguna acción específica
         return {"action": "none"}
-    
+
     def run_interactive_visualization(self, action_getter, max_steps=1000):
         """Ejecutar la visualización interactiva con botones."""
         step = 0
@@ -582,8 +810,16 @@ class InteractiveFirefightingViz(FirefightingViz):
                 cumulative_reward = 0
                 done = False
                 state = self.env.reset()
+                # Limpiar frames al reiniciar
+                self.frames = []
                 print("Simulación reiniciada")
+            elif event_result["action"] == "save_gif":
+                # Guardar frames como GIF
+                self.save_gif()
             elif event_result["action"] == "step" and not done:
+                # Capturar frame para GIF
+                self.capture_frame()
+                
                 # Obtener acciones del agente
                 actions = action_getter(state)
                 
@@ -628,8 +864,20 @@ def visualize_trained_agent(agent, env, steps_or_dir=1000, fps=5):
 def visualize_trained_agent_interactive(agent, env, max_steps=1000):
     """Visualizar un agente entrenado en el entorno con controles interactivos"""
     def action_getter(state):
-        """Obtener acciones del agente basadas en el estado"""
-        return agent.select_action(state)
+        """Obtener acciones del agente basadas en el estado usando epsilon=0 (sin exploración)"""
+        # Guardar epsilon original
+        original_epsilon = agent.epsilon
+        
+        # Establecer epsilon a 0 para visualización (sin exploración)
+        agent.epsilon = 0.0
+        
+        # Obtener acción determinista
+        action = agent.select_action(state)
+        
+        # Restaurar epsilon original
+        agent.epsilon = original_epsilon
+        
+        return action
 
     # Asegurar que max_steps es un entero
     max_steps = int(max_steps)
