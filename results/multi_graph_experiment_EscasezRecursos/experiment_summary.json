@@ -1,0 +1,81 @@
+{
+  "experiment_config": {
+    "episodes_per_graph": 2000,
+    "max_steps": 500,
+    "num_graphs": 5,
+    "eval_interval": 100,
+    "device": "cuda"
+  },
+  "results_summary": [
+    {
+      "graph_id": 1,
+      "num_nodes": 18,
+      "num_edges": 46,
+      "num_depots": 1,
+      "num_fires": 8,
+      "num_starters": 9,
+      "final_eval_reward": 449.3125,
+      "final_eval_std": 0.0,
+      "avg_reward_last_100": 440.324208984375,
+      "avg_fires_last_100": 8.0,
+      "avg_steps_last_100": 135.7,
+      "convergence_std": 15.04558854649294
+    },
+    {
+      "graph_id": 2,
+      "num_nodes": 13,
+      "num_edges": 25,
+      "num_depots": 1,
+      "num_fires": 5,
+      "num_starters": 7,
+      "final_eval_reward": 233.25,
+      "final_eval_std": 0.0,
+      "avg_reward_last_100": 223.673828125,
+      "avg_fires_last_100": 5.0,
+      "avg_steps_last_100": 37.56,
+      "convergence_std": 16.64622785206549
+    },
+    {
+      "graph_id": 3,
+      "num_nodes": 16,
+      "num_edges": 32,
+      "num_depots": 1,
+      "num_fires": 5,
+      "num_starters": 10,
+      "final_eval_reward": 256.5625,
+      "final_eval_std": 0.0,
+      "avg_reward_last_100": 248.5555859375,
+      "avg_fires_last_100": 5.0,
+      "avg_steps_last_100": 62.27,
+      "convergence_std": 25.37873491947493
+    },
+    {
+      "graph_id": 4,
+      "num_nodes": 15,
+      "num_edges": 34,
+      "num_depots": 2,
+      "num_fires": 6,
+      "num_starters": 7,
+      "final_eval_reward": 294.50390625,
+      "final_eval_std": 0.0,
+      "avg_reward_last_100": 289.41830078125,
+      "avg_fires_last_100": 6.0,
+      "avg_steps_last_100": 65.34,
+      "convergence_std": 26.619231429329417
+    },
+    {
+      "graph_id": 5,
+      "num_nodes": 13,
+      "num_edges": 29,
+      "num_depots": 2,
+      "num_fires": 7,
+      "num_starters": 4,
+      "final_eval_reward": 361.1953125,
+      "final_eval_std": 0.0,
+      "avg_reward_last_100": 348.527060546875,
+      "avg_fires_last_100": 7.0,
+      "avg_steps_last_100": 65.48,
+      "convergence_std": 25.142980855866966
+    }
+  ]
+}

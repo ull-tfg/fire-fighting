@@ -1,0 +1,270 @@
+{
+  "nodes": [
+    {
+      "id": 0,
+      "type": "fire"
+    },
+    {
+      "id": 1,
+      "type": "fire"
+    },
+    {
+      "id": 2,
+      "type": "fire"
+    },
+    {
+      "id": 3,
+      "type": "starter"
+    },
+    {
+      "id": 4,
+      "type": "starter"
+    },
+    {
+      "id": 5,
+      "type": "starter"
+    },
+    {
+      "id": 6,
+      "type": "depot"
+    },
+    {
+      "id": 7,
+      "type": "starter"
+    },
+    {
+      "id": 8,
+      "type": "depot"
+    },
+    {
+      "id": 9,
+      "type": "fire"
+    },
+    {
+      "id": 10,
+      "type": "starter"
+    },
+    {
+      "id": 11,
+      "type": "depot"
+    },
+    {
+      "id": 12,
+      "type": "fire"
+    },
+    {
+      "id": 13,
+      "type": "depot"
+    },
+    {
+      "id": 14,
+      "type": "starter"
+    }
+  ],
+  "edges": [
+    {
+      "source": 0,
+      "target": 2,
+      "width": 5,
+      "transit_time": 1
+    },
+    {
+      "source": 0,
+      "target": 4,
+      "width": 4,
+      "transit_time": 2
+    },
+    {
+      "source": 0,
+      "target": 6,
+      "width": 5,
+      "transit_time": 1
+    },
+    {
+      "source": 0,
+      "target": 12,
+      "width": 5,
+      "transit_time": 1
+    },
+    {
+      "source": 0,
+      "target": 13,
+      "width": 5,
+      "transit_time": 1
+    },
+    {
+      "source": 1,
+      "target": 2,
+      "width": 5,
+      "transit_time": 1
+    },
+    {
+      "source": 1,
+      "target": 7,
+      "width": 3,
+      "transit_time": 2
+    },
+    {
+      "source": 1,
+      "target": 8,
+      "width": 3,
+      "transit_time": 1
+    },
+    {
+      "source": 1,
+      "target": 9,
+      "width": 2,
+      "transit_time": 2
+    },
+    {
+      "source": 2,
+      "target": 3,
+      "width": 4,
+      "transit_time": 2
+    },
+    {
+      "source": 2,
+      "target": 13,
+      "width": 4,
+      "transit_time": 3
+    },
+    {
+      "source": 3,
+      "target": 6,
+      "width": 5,
+      "transit_time": 1
+    },
+    {
+      "source": 3,
+      "target": 7,
+      "width": 5,
+      "transit_time": 2
+    },
+    {
+      "source": 3,
+      "target": 9,
+      "width": 5,
+      "transit_time": 1
+    },
+    {
+      "source": 3,
+      "target": 12,
+      "width": 5,
+      "transit_time": 1
+    },
+    {
+      "source": 4,
+      "target": 8,
+      "width": 5,
+      "transit_time": 1
+    },
+    {
+      "source": 5,
+      "target": 7,
+      "width": 2,
+      "transit_time": 4
+    },
+    {
+      "source": 5,
+      "target": 8,
+      "width": 4,
+      "transit_time": 1
+    },
+    {
+      "source": 5,
+      "target": 9,
+      "width": 3,
+      "transit_time": 4
+    },
+    {
+      "source": 5,
+      "target": 12,
+      "width": 4,
+      "transit_time": 2
+    },
+    {
+      "source": 6,
+      "target": 9,
+      "width": 2,
+      "transit_time": 5
+    },
+    {
+      "source": 6,
+      "target": 10,
+      "width": 4,
+      "transit_time": 2
+    },
+    {
+      "source": 6,
+      "target": 11,
+      "width": 2,
+      "transit_time": 5
+    },
+    {
+      "source": 6,
+      "target": 14,
+      "width": 2,
+      "transit_time": 3
+    },
+    {
+      "source": 7,
+      "target": 8,
+      "width": 3,
+      "transit_time": 1
+    },
+    {
+      "source": 7,
+      "target": 11,
+      "width": 2,
+      "transit_time": 3
+    },
+    {
+      "source": 7,
+      "target": 13,
+      "width": 4,
+      "transit_time": 2
+    },
+    {
+      "source": 7,
+      "target": 14,
+      "width": 3,
+      "transit_time": 3
+    },
+    {
+      "source": 8,
+      "target": 9,
+      "width": 5,
+      "transit_time": 2
+    },
+    {
+      "source": 8,
+      "target": 10,
+      "width": 5,
+      "transit_time": 1
+    },
+    {
+      "source": 8,
+      "target": 14,
+      "width": 2,
+      "transit_time": 3
+    },
+    {
+      "source": 10,
+      "target": 12,
+      "width": 2,
+      "transit_time": 2
+    },
+    {
+      "source": 11,
+      "target": 12,
+      "width": 2,
+      "transit_time": 5
+    },
+    {
+      "source": 11,
+      "target": 14,
+      "width": 2,
+      "transit_time": 5
+    }
+  ]
+}
